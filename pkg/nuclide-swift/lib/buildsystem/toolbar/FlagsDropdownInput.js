@@ -21,9 +21,9 @@ export default class FlagsDropdownInput extends React.Component {
     Xswiftc: React.PropTypes.string.isRequired,
     disabled: React.PropTypes.bool.isRequired,
     onFlagChange: React.PropTypes.func.isRequired,
-    onXCcChange: React.PropTypes.func.isRequired,
-    onXLinkerChange: React.PropTypes.func.isRequired,
-    onXSwiftcChange: React.PropTypes.func.isRequired,
+    onXccChange: React.PropTypes.func.isRequired,
+    onXlinkerChange: React.PropTypes.func.isRequired,
+    onXswiftcChange: React.PropTypes.func.isRequired,
   };
 
   state: {
