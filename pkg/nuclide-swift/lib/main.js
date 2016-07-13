@@ -81,6 +81,8 @@ export function createAutocompleteProvider(): mixed {
     selector: '.source.swift',
     inclusionPriority: 1,
     disableForSelector: '.source.swift .comment',
-    getSuggestions: _getBuildSystem().getAutocompletionProvider().getAutocompleteSuggestions,
+    getSuggestions(request) {
+      _getBuildSystem().getAutocompletionProvider().getAutocompleteSuggestions(request);
+    },
   };
 }
