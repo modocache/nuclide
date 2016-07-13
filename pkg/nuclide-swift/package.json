@@ -15,6 +15,12 @@
       ]
     },
     "config": {
+      "enableTypeHints": {
+        "title": "Enable Type Hints",
+        "type": "boolean",
+        "default": true,
+        "description": "Display tooltips with Swift types"
+      },
       "swiftToolchainPath": {
         "title": "Swift Toolchain Path",
         "type": "string",
@@ -44,12 +50,32 @@
       "versions": {
         "0.0.0": "consumeOutputService"
       }
+    },
+    "nuclide-side-bar": {
+      "versions": {
+        "1.0.0": "consumeNuclideSideBar"
+      }
     }
   },
   "providedServices": {
     "autocomplete.provider": {
       "versions": {
         "2.0.0": "createAutocompleteProvider"
+      }
+    },
+    "nuclide-outline-view": {
+      "versions": {
+        "0.0.0": "getOutlineProvider"
+      }
+    },
+    "nuclide-code-format.provider": {
+      "versions": {
+        "0.0.0": "provideCodeFormat"
+      }
+    },
+    "nuclide-type-hint.provider": {
+      "versions": {
+        "0.0.0": "createTypeHintProvider"
       }
     }
   },

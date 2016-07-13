@@ -15,7 +15,7 @@ import ConfigurationDropdown from './ConfigurationDropdown';
 import FlagsDropdownInput from './FlagsDropdownInput';
 import BuildPathInput from './BuildPathInput';
 import TestBuildPathInput from './TestBuildPathInput';
-import {SwiftPMTaskRunnerBuildTask} from '../SwiftPMTaskRunnerTasks';
+import {SwiftPMTaskRunnerBuildTask, SwiftPMTaskRunnerTestTask} from '../SwiftPMTaskRunnerTasks';
 
 export default class SwiftPMTaskRunnerToolbar extends React.Component {
   constructor(props: mixed) {

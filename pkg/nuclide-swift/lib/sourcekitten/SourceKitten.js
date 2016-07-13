@@ -16,7 +16,7 @@ import featureConfig from '../../../nuclide-feature-config';
  * Commands that SourceKitten implements and nuclide-swift supports, such as
  * "complete" for autocompletion.
  */
-export type SourceKittenCommand = 'complete';
+export type SourceKittenCommand = 'complete' | 'index';
 
 /**
  * Returns the path to SourceKitten, based on the user's Nuclide config.

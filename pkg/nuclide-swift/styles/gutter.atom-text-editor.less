@@ -1,0 +1,33 @@
+@import 'ui-variables';
+@import "octicon-mixins.less";
+@import "octicon-utf-codes.less";
+
+.nuclide-swift-test-passed-icon {
+  .octicon(primitive-dot, @size: 130%);
+  text-align: center;
+  display: block;
+  width: 0.8em;
+  color: @text-color-success;
+}
+
+.nuclide-swift-test-failed-icon {
+  .octicon(primitive-dot, @size: 130%);
+  text-align: center;
+  display: block;
+  width: 0.8em;
+  color: @text-color-error;
+}
+
+@backgroundColor: fade(@background-color-error, 30%);
+@pseudoBorderColor: fade(@background-color-error, 30%);
+.nuclide-swift-test-failed-line-highlight {
+  background: linear-gradient(
+    to bottom,
+    @pseudoBorderColor 0%,
+    @pseudoBorderColor 5%,
+    @backgroundColor 5%,
+    @backgroundColor 95%,
+    @pseudoBorderColor 95%,
+    @pseudoBorderColor 100%
+  )
+}

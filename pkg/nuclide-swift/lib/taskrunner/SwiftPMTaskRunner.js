@@ -24,7 +24,16 @@ import {observeProcess, safeSpawn} from '../../../commons-node/process';
 import {observableToTaskInfo} from '../../../commons-node/observableToTaskInfo';
 import SwiftPMTaskRunnerStore from './SwiftPMTaskRunnerStore';
 import SwiftPMTaskRunnerActions from './SwiftPMTaskRunnerActions';
-import {buildCommand, testCommand} from './SwiftPMTaskRunnerCommands';
+import {
+  buildCommand,
+  testCommand,
+  createNewPackageCommand,
+  fetchPackageDependenciesCommand,
+  updatePackageDependenciesCommand,
+  generateXcodeProjectCommand,
+  visualizePackageDependenciesCommand,
+  displayBufferDescriptionCommand,
+} from './SwiftPMTaskRunnerCommands';
 import {
   SwiftPMTaskRunnerBuildTask,
   SwiftPMTaskRunnerTestTask,
@@ -32,6 +41,8 @@ import {
 } from './SwiftPMTaskRunnerTasks';
 import SwiftPMTaskRunnerToolbar from './toolbar/SwiftPMTaskRunnerToolbar';
 import SwiftPMAutocompletionProvider from './providers/SwiftPMAutocompletionProvider';
+import SwiftPMTypeHintProvider from './typehint/SwiftPMTypeHintProvider';
+import {addTestResultGutterIcon, highlightLine} from './gutter/TestResults.js';
 import {SwiftIcon} from '../ui/SwiftIcon';
 
 /**
@@ -54,6 +65,7 @@ export class SwiftPMTaskRunner {
   _disposables: CompositeDisposable;
   _store: SwiftPMTaskRunnerStore;
   _autocompletionProvier: SwiftPMAutocompletionProvider;
+  _typeHintProvider: SwiftPMTypeHintProvider;
   _actions: SwiftPMTaskRunnerActions;
   _tasks: Observable<Array<Task>>;
   _outputMessages: Subject<Message>;
@@ -67,10 +79,17 @@ export class SwiftPMTaskRunner {
     this._actions = new SwiftPMTaskRunnerActions(dispatcher);
     this._outputMessages = new Subject();
     this._autocompletionProvier = new SwiftPMAutocompletionProvider(this._store);
+    this._typeHintProvider = new SwiftPMTypeHintProvider(this._store);
 
     this._disposables = new CompositeDisposable();
     this._disposables.add(this._store);
     this._disposables.add(this._outputMessages);
+    this._disposables.add(atom.workspace.observeTextEditors(editor => {
+      editor.addGutter({
+        name: 'nuclide-swift-test-result',
+        visible: false,
+      });
+    }));
   }
 
   dispose(): void {
@@ -134,9 +153,24 @@ export class SwiftPMTaskRunner {
       case SwiftPMTaskRunnerTestTask.type:
         command = testCommand(chdir, buildPath);
         break;
+      case 'create-new-package':
+        command = createNewPackageCommand(this._store);
+        break;
+      case 'fetch-package-dependencies':
+        command = fetchPackageDependenciesCommand(this._store);
+        break;
+      case 'update-package-dependencies':
+        command = updatePackageDependenciesCommand(this._store);
+        break;
+      case 'generate-xcode-project':
+        command = generateXcodeProjectCommand(this._store);
+        break;
+      case 'visualize-package-dependencies':
+        command = visualizePackageDependenciesCommand(this._store);
+        break;
       default:
         // FIXME: Throw an error for unknown task types.
-        command = testCommand(chdir, buildPath);
+        command = displayBufferDescriptionCommand(this._store);
         break;
     }
 
@@ -150,6 +184,10 @@ export class SwiftPMTaskRunner {
         case 'stderr':
         case 'stdout':
           this._logOutput(message.data, 'log');
+          // FIXME: These test failures are displayed but never removed.
+          //        nuclide-swift should cache a list of files/lines for test
+          //        failures, and remove test failures before each task is run.
+          this._showTestFailure(message.data);
           break;
         case 'exit':
           this._logOutput(`Exited with exit code ${message.exitCode}`, 'log');
@@ -195,7 +233,38 @@ export class SwiftPMTaskRunner {
     return this._autocompletionProvier;
   }
 
+  getTypeHintProvider(): SwiftPMTypeHintProvider {
+    return this._typeHintProvider;
+  }
+
   _logOutput(text: string, level: Level) {
     this._outputMessages.next({text, level});
+  }
+
+  async _showTestFailure(text: string) {
+    if (!text.includes('error:')) {
+      return;
+    }
+    const components = text.split(':');
+    if (components.length < 2) {
+      return;
+    }
+
+    const path = components[0];
+    const fileExists = await fsPromise.exists(path);
+    if (fileExists) {
+      for (const editor of atom.workspace.getTextEditors()) {
+        if (editor.getBuffer().getPath() === path) {
+          const line = parseInt(components[1], 10) - 1;
+          addTestResultGutterIcon(editor, line, 'nuclide-swift-test-failed-icon');
+          highlightLine(editor, line);
+        }
+      }
+    } else {
+      atom.notifications.addError('Error', {
+        detail: text.substring(text.indexOf('error:') + 7),
+        dismissable: true,
+      });
+    }
   }
 }
