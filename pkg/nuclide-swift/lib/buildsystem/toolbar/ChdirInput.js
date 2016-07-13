@@ -16,7 +16,7 @@ export default class ChdirInput extends React.Component {
   static propTypes = {
     chdir: React.PropTypes.string.isRequired,
     disabled: React.PropTypes.bool.isRequired,
-    onChange: React.PropTypes.func.isRequired,
+    onChdirChange: React.PropTypes.func.isRequired,
   };
 
   state: {
