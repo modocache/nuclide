@@ -13,7 +13,7 @@ import {Emitter} from 'atom';
 import {Dispatcher} from 'flux';
 import SwiftPMBuildSystemActions from './SwiftPMBuildSystemActions';
 
-export default class SwiftcBuildToolbarStore {
+export default class SwiftPMBuildSystemStore {
   _dispatcher: Dispatcher;
   _emitter: Emitter;
   _chdir: string;

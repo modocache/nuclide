@@ -64,14 +64,17 @@ export default class SwiftPMAutocompletionProvider {
       '-sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk -D SWIFT_PACKAGE -Onone -g -enable-testing -F /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks -target x86_64-apple-macosx10.10 -module-cache-path /Users/bgesiak/GitHub/tmp/MyCoolPackage/.build/debug/ModuleCache /Users/bgesiak/GitHub/tmp/MyCoolPackage/Sources/MyCoolPackage.swift /Users/bgesiak/GitHub/tmp/MyCoolPackage/Sources/AnotherSourceFile.swift',
     ];
     const result = await asyncExecute(sourceKittenPath, args);
-    if (!result.exitCode) {
+    if (result.exitCode === null) {
       // FIXME: Display this error to the user via an error modal or something.
+      const errorCode = result.errorCode ? result.errorCode : '';
+      const errorMessage = result.errorMessage ? result.errorMessage : '';
       throw new Error(
         `Could not invoke SourceKitten at path '${sourceKittenPath}'. ` +
         'Please double-check that the path you have set for the ' +
-        'nuclide-swift.sourceKittenPath config setting is correct.'
+        'nuclide-swift.sourceKittenPath config setting is correct. ' +
+        `Error code "${errorCode}", "${errorMessage}"`
       );
-    } else if (result.exitCode !== 0 || !result.stdout) {
+    } else if (result.exitCode !== 0 || result.stdout.length === 0) {
       // We probably parsed the llbuild YAML incorrectly, resulting in
       // bad parameters being passed to SourceKitten. Return an empty set of
       // autocompletion suggestions.
