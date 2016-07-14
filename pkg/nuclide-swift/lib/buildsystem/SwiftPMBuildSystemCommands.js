@@ -12,45 +12,44 @@
 import featureConfig from '../../../nuclide-feature-config';
 import SwiftPMBuildSystemStore from './SwiftPMBuildSystemStore';
 
-export function buildCommand(store: SwiftPMBuildSystemStore): {
+export function buildCommand(
+  chdir: string,
+  configuration: string,
+  Xcc: string,
+  Xlinker: string,
+  Xswiftc: string,
+  buildPath: string,
+): {
   command: string;
   args: Array<string>
 } {
   const commandArgs = [
     'build',
-    '--chdir', store.getChdir(),
-    '--configuration', store.getConfiguration(),
+    '--chdir', chdir,
+    '--configuration', configuration,
   ];
-  if (store.getXcc().length > 0) {
-    commandArgs.push('-Xcc', store.getXcc());
-  }
-  if (store.getXlinker().length > 0) {
-    commandArgs.push('-Xlinker', store.getXlinker());
-  }
-  if (store.getXswiftc().length > 0) {
-    commandArgs.push('-Xswiftc', store.getXswiftc());
-  }
-  if (store.getBuildPath().length > 0) {
-    commandArgs.push('--build-path', store.getBuildPath());
-  }
-
+  _pushIfNotEmpty(commandArgs, Xcc);
+  _pushIfNotEmpty(commandArgs, Xlinker);
+  _pushIfNotEmpty(commandArgs, Xswiftc);
+  _pushIfNotEmpty(commandArgs, buildPath);
   return {
     command: _swiftPath(),
     args: commandArgs,
   };
 }
 
-export function testCommand(store: SwiftPMBuildSystemStore): {
+export function testCommand(
+  chdir: string,
+  buildPath: string,
+): {
   command: string;
   args: Array<string>
 } {
   const commandArgs = [
     'test',
-    '--chdir', store.getChdir(),
+    '--chdir', chdir,
   ];
-  if (store.getBuildPath().length > 0) {
-    commandArgs.push('--build-path', store.getBuildPath());
-  }
+  _pushIfNotEmpty(commandArgs, buildPath);
   return {
     command: _swiftPath(),
     args: commandArgs,
@@ -158,4 +157,10 @@ function _swiftPath(): string {
   }
 
   return 'swift';
+}
+
+function _pushIfNotEmpty(array: Array<string>, element: string) {
+  if (element.length > 0) {
+    array.push(element);
+  }
 }

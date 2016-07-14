@@ -15,7 +15,6 @@ import {asyncExecute} from '../../../../commons-node/process';
 import fsPromise from '../../../../commons-node/fsPromise';
 import featureConfig from '../../../../nuclide-feature-config';
 import SwiftPMBuildSystemStore from '../SwiftPMBuildSystemStore';
-import {compilerArgsForFile} from '../LlbuildYamlParser';
 
 /**
  * An autocompletion provider that uses the compile commands in a built Swift
@@ -25,7 +24,6 @@ export default class SwiftPMAutocompletionProvider {
   _store: SwiftPMBuildSystemStore;
 
   constructor(store: SwiftPMBuildSystemStore) {
-    console.log(`SwiftPMAutocompletionProvider.constructor store: ${store.getConfiguration()}`);
     this._store = store;
   }
 
@@ -40,10 +38,7 @@ export default class SwiftPMAutocompletionProvider {
     const filePath = request.editor.getPath();
     let compilerArgs;
     if (filePath) {
-      compilerArgs = await compilerArgsForFile(
-        filePath, this._store.getMostRecentlyGeneratedLlbuildYamlPath());
-    } else {
-      compilerArgs = '';
+      compilerArgs = this._store.getCompileCommands().get(filePath)
     }
 
     const sourceKittenPath = _getSourceKittenPath();
@@ -54,7 +49,7 @@ export default class SwiftPMAutocompletionProvider {
       '--text', request.editor.getText(),
       '--offset', String(offset),
       '--compilerargs', '--',
-      compilerArgs,
+      compilerArgs ? compilerArgs : '',
     ];
     const result = await asyncExecute(sourceKittenPath, args);
     if (result.exitCode === null) {
@@ -96,7 +91,7 @@ function rawCompletionToSuggestion(
     text: suggestion.name,
     snippet: snippet ? snippet : '',
     rightLabel: suggestion.kind,
-    description: suggestion.docBrief,
+    description: suggestion.docBrief ? suggestion.docBrief : '',
   };
 }
 
