@@ -9,6 +9,7 @@
  * the root directory of this source tree.
  */
 
+import {join} from 'path';
 import {Emitter} from 'atom';
 import {Dispatcher} from 'flux';
 import SwiftPMBuildSystemActions from './SwiftPMBuildSystemActions';
@@ -24,6 +25,7 @@ export default class SwiftPMBuildSystemStore {
   _Xlinker: string;
   _Xswiftc: string;
   _testBuildPath: string;
+  _mostRecentlyGeneratedLlbuildYAMLPath: string;
 
   constructor(dispatcher: Dispatcher) {
     this._dispatcher = dispatcher;
@@ -36,6 +38,7 @@ export default class SwiftPMBuildSystemStore {
     this._Xlinker = '';
     this._Xswiftc = '';
     this._testBuildPath = '';
+    this._mostRecentlyGeneratedLlbuildYAMLPath = '';
 
     this._dispatcher.register(action => {
       switch (action.actionType) {
@@ -62,6 +65,9 @@ export default class SwiftPMBuildSystemStore {
           break;
         case SwiftPMBuildSystemActions.ActionType.UPDATE_TEST_BUILD_PATH:
           this._testBuildPath = action.value;
+          break;
+        case SwiftPMBuildSystemActions.ActionType.UPDATE_MOST_RECENTLY_GENERATED_LLBUILD_YAML_PATH:
+          this._mostRecentlyGeneratedLlbuildYAMLPath = action.value;
           break;
       }
     });
@@ -109,5 +115,33 @@ export default class SwiftPMBuildSystemStore {
 
   getTestBuildPath(): string {
     return this._testBuildPath;
+  }
+
+  /**
+   * SwiftPM generates YAML, which is then consumed by llbuild. However, it
+   * can generate that YAML at one of several paths:
+   *
+   *   - If the build configuration is 'debug', it generates a 'debug.yaml'.
+   *   - If the build configuration is 'release', it generates a 'release.yaml'.
+   *   - If no --build-path is specified, it generates
+   *     '.build/{debug|release}.yaml'.
+   *   - If a --build-path is specified, it generates
+   *     '/path/to/build/path/{debug|release.yaml}'.
+   *
+   * This function returns the path to YAML file that will be generated if a
+   * build task is begun with the current store's settings.
+   */
+  getLlbuildYamlPath(): string {
+    const yamlFileName = `${this.getConfiguration()}.yaml`;
+    const buildPath = this.getBuildPath();
+    if (buildPath.length > 0) {
+      return join(buildPath, yamlFileName);
+    } else {
+      return join(this.getChdir(), '.build', yamlFileName);
+    }
+  }
+
+  getMostRecentlyGeneratedLlbuildYamlPath() {
+    return this._mostRecentlyGeneratedLlbuildYAMLPath;
   }
 }

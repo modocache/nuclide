@@ -24,6 +24,7 @@ export default class SwiftPMBuildSystemActions {
     UPDATE_XLINKER: null,
     UPDATE_XSWIFTC: null,
     UPDATE_TEST_BUILD_PATH: null,
+    UPDATE_MOST_RECENTLY_GENERATED_LLBUILD_YAML_PATH: null,
   }));
 
   constructor(dispatcher: Dispatcher) {
@@ -82,6 +83,13 @@ export default class SwiftPMBuildSystemActions {
   updateTestBuildPath(value: string): void {
     this._dispatcher.dispatch({
       actionType: SwiftPMBuildSystemActions.ActionType.UPDATE_TEST_BUILD_PATH,
+      value,
+    });
+  }
+
+  updateMostRecentlyGeneratedLlbuildYamlPath(value: string): void {
+    this._dispatcher.dispatch({
+      actionType: SwiftPMBuildSystemActions.ActionType.UPDATE_MOST_RECENTLY_GENERATED_LLBUILD_YAML_PATH,
       value,
     });
   }
