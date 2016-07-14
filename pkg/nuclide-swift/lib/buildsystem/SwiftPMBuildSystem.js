@@ -247,6 +247,11 @@ export class SwiftPMBuildSystem {
           highlightLine(editor, line);
         }
       }
+    } else {
+      atom.notifications.addError('Error', {
+        detail: text.substring(text.indexOf("error:") + 7),
+        dismissable: true,
+      });
     }
   }
 }
