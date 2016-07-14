@@ -25,7 +25,7 @@ export function buildCommand(
 } {
   const commandArgs = [
     'build',
-    '--chdir', chdir,
+    '--chdir', chdir || atom.project.getPaths()[0],
     '--configuration', configuration,
   ];
   _pushIfNotEmpty(commandArgs, Xcc);
@@ -47,7 +47,7 @@ export function testCommand(
 } {
   const commandArgs = [
     'test',
-    '--chdir', chdir,
+    '--chdir', chdir || atom.project.getPaths()[0],
   ];
   _pushIfNotEmpty(commandArgs, buildPath);
   return {

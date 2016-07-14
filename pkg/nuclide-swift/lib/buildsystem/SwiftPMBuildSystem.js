@@ -96,6 +96,7 @@ export class SwiftPMBuildSystem {
   getExtraUi(): ReactClass<any> {
     const store = this._store;
     const actions = this._actions;
+    const defaultDir = atom.project.getPaths()[0];
     return class ExtraUi extends React.Component {
       props: {
         activeTaskType: ?string;
@@ -107,6 +108,7 @@ export class SwiftPMBuildSystem {
             store={store}
             actions={actions}
             activeTaskType={this.props.activeTaskType}
+            defaultDir={defaultDir}
           />
         );
       }
