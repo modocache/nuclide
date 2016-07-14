@@ -23,7 +23,16 @@ import {observeProcess, safeSpawn} from '../../../commons-node/process';
 import {observableToBuildTaskInfo} from '../../../commons-node/observableToBuildTaskInfo';
 import SwiftPMBuildSystemStore from './SwiftPMBuildSystemStore';
 import SwiftPMBuildSystemActions from './SwiftPMBuildSystemActions';
-import {buildCommand, testCommand} from './SwiftPMBuildSystemCommands';
+import {
+  buildCommand,
+  testCommand,
+  createNewPackageCommand,
+  fetchPackageDependenciesCommand,
+  updatePackageDependenciesCommand,
+  generateXcodeProjectCommand,
+  visualizePackageDependenciesCommand,
+  displayBufferDescriptionCommand,
+} from './SwiftPMBuildSystemCommands';
 import {
   SwiftPMBuildSystemBuildTask,
   SwiftPMBuildSystemTestTask,
@@ -119,10 +128,30 @@ export class SwiftPMBuildSystem {
 
   runTask(taskType: string): TaskInfo {
     let command;
-    if (taskType === SwiftPMBuildSystemBuildTask.type) {
-      command = buildCommand(this._store);
-    } else {
-      command = testCommand(this._store);
+    switch (taskType) {
+      case SwiftPMBuildSystemBuildTask.type:
+        command = buildCommand(this._store);
+        break;
+      case SwiftPMBuildSystemTestTask.type:
+        command = testCommand(this._store);
+        break;
+      case 'create-new-package':
+        command = createNewPackageCommand(this._store);
+        break;
+      case 'fetch-package-dependencies':
+        command = fetchPackageDependenciesCommand(this._store);
+        break;
+      case 'update-package-dependencies':
+        command = updatePackageDependenciesCommand(this._store);
+        break;
+      case 'generate-xcode-project':
+        command = generateXcodeProjectCommand(this._store);
+        break;
+      case 'visualize-package-dependencies':
+        command = visualizePackageDependenciesCommand(this._store);
+        break;
+      default:
+        command = displayBufferDescriptionCommand(this._store);
     }
 
     atom.commands.dispatch(atom.views.getView(atom.workspace), 'nuclide-console:show');

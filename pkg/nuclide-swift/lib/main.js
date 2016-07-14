@@ -30,6 +30,14 @@ export function activate(rawState: ?Object): void {
   invariant(_disposables == null);
   _disposables = new CompositeDisposable(
     new Disposable(),
+    atom.commands.add('atom-workspace', {
+      'nuclide-swift:create-new-package': () => _getBuildSystem().runTask('create-new-package'),
+      'nuclide-swift:fetch-packages-dependencies': () => _getBuildSystem().runTask('fetch-package-dependencies'),
+      'nuclide-swift:update-package-dependencies': () => _getBuildSystem().runTask('update-package-dependencies'),
+      'nuclide-swift:generate-xcode-project': () => _getBuildSystem().runTask('generate-xcode-project'),
+      'nuclide-swift:visualize-package-dependencies': () => _getBuildSystem().runTask('visualize-package-dependencies'),
+      'nuclide-swift:display-buffer-description': () => _getBuildSystem().runTask('display-buffer-description')
+    }),
   );
 }
 

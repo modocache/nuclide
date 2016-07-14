@@ -1,0 +1,38 @@
+{
+  "menu": [
+    {
+      "label": "Nuclide",
+      "submenu": [
+        {
+          "label": "Swift",
+          "submenu": [
+            {
+              "label": "Create New Package",
+              "command": "nuclide-swift:create-new-package"
+            },
+            {
+              "label": "Fetch Current Package’s Dependencies",
+              "command": "nuclide-swift:fetch-package-dependencies"
+            },
+            {
+              "label": "Update Current Package’s Dependencies",
+              "command": "nuclide-swift:update-package-dependencies"
+            },
+            {
+              "label": "Generate Xcode Project for Current Package",
+              "command": "nuclide-swift:generate-xcode-project"
+            },
+            {
+              "label": "Visualize Current Package’s Dependencies",
+              "command": "nuclide-swift:visualize-package-dependencies"
+            },
+            {
+              "label": "Display Buffer for Current Package’s Description as JSON",
+              "command": "nuclide-swift:display-buffer-description"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
