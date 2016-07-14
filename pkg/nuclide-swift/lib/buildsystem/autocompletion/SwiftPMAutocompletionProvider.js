@@ -13,8 +13,9 @@ import type {SourceKittenCompletion} from './SourceKittenCompletion';
 
 import {asyncExecute} from '../../../../commons-node/process';
 import fsPromise from '../../../../commons-node/fsPromise';
-import featureConfig from '../../../../nuclide-feature-config';
 import SwiftPMBuildSystemStore from '../SwiftPMBuildSystemStore';
+import getSourceKittenPath from './SourceKitten';
+import sourceKittenCompletionToAtomSuggestion from './SourceKittenCompletion';
 
 /**
  * An autocompletion provider that uses the compile commands in a built Swift
@@ -41,7 +42,7 @@ export default class SwiftPMAutocompletionProvider {
       compilerArgs = this._store.getCompileCommands().get(filePath)
     }
 
-    const sourceKittenPath = _getSourceKittenPath();
+    const sourceKittenPath = getSourceKittenPath();
     const {bufferPosition, editor, prefix} = request;
     const offset = editor.getBuffer().characterIndexForPosition(bufferPosition) - prefix.length;
     const args = [
@@ -75,49 +76,6 @@ export default class SwiftPMAutocompletionProvider {
 
     return JSON.parse(result.stdout)
       .filter((completion: SourceKittenCompletion) => completion.name.startsWith(prefix))
-      .map(rawCompletionToSuggestion);
-  }
-}
-
-function _getSourceKittenPath(): string {
-  return (featureConfig.get('nuclide-swift.sourceKittenPath'): any);
-}
-
-function rawCompletionToSuggestion(
-  suggestion: SourceKittenCompletion,
-): atom$AutocompleteSuggestion {
-  const snippet = formatSuggestionForSnippet(suggestion);
-  return {
-    text: suggestion.name,
-    snippet: snippet ? snippet : '',
-    rightLabel: suggestion.kind,
-    description: suggestion.docBrief ? suggestion.docBrief : '',
-  };
-}
-
-function formatSuggestionForSnippet(suggestion: SourceKittenCompletion): ?string {
-  // TODO(mbolin): Format suggestion.sourcetext, which is something like:
-  //
-  // zip(<#T##sequence1: Sequence1##Sequence1#>, <#T##sequence2: Sequence2##Sequence2#>)
-  //
-  // to match the format of an Atom snippet:
-  //
-  // zip(${1:sequence1}, ${2:sequence2})
-  //
-  // For now, we match on the name rather than the sourcetext even though it has less information.
-
-  // Suggestion names look something like "functionWithOneArgument(:)".
-  // The first match here is for the first whole word ("functionWithOneArgument").
-  // The second match is for the remainder.
-  const match = suggestion.name.match(/^(\w+)\(([^\)]+)\)$/);
-  if (match) {
-    const identifier = match[1];
-    const args = match[2].split(':');
-    args.pop();
-    return identifier + '(' +
-      args.map((arg, index) => `\${${index + 1}:${arg}}`).join(', ') +
-      ')';
-  } else {
-    return null;
+      .map(sourceKittenCompletionToAtomSuggestion);
   }
 }
