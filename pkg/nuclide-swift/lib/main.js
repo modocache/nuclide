@@ -84,13 +84,15 @@ function _getBuildSystem(): SwiftPMBuildSystem {
   return _buildSystem;
 }
 
-export function createAutocompleteProvider(): mixed {
+export function createAutocompleteProvider(): atom$AutocompleteProvider {
   return {
     selector: '.source.swift',
     inclusionPriority: 1,
     disableForSelector: '.source.swift .comment',
-    getSuggestions(request) {
-      _getBuildSystem().getAutocompletionProvider().getAutocompleteSuggestions(request);
+    getSuggestions(
+      request: atom$AutocompleteRequest
+    ): Promise<?Array<atom$AutocompleteSuggestion>> {
+      return _getBuildSystem().getAutocompletionProvider().getAutocompleteSuggestions(request);
     },
   };
 }
