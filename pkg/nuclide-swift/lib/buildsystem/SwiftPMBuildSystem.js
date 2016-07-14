@@ -131,6 +131,13 @@ export class SwiftPMBuildSystem {
     switch (taskType) {
       case SwiftPMBuildSystemBuildTask.type:
         command = buildCommand(this._store);
+        // FIXME: If the build command fails, we may end up updating the
+        //        "most recently generated YAML path" to a path that doesn't
+        //        exist on the filesystem. And since we don't serialize the store,
+        //        autocompletion is completely broken every time Atom restarts,
+        //        until the user first builds the package.
+        this._actions.updateMostRecentlyGeneratedLlbuildYamlPath(
+          this._store.getLlbuildYamlPath());
         break;
       case SwiftPMBuildSystemTestTask.type:
         command = testCommand(this._store);
