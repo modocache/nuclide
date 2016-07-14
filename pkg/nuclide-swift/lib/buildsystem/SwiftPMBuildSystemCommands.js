@@ -57,6 +57,96 @@ export function testCommand(store: SwiftPMBuildSystemStore): {
   };
 }
 
+export function createNewPackageCommand(store: SwiftPMBuildSystemStore): {
+  command: string;
+  args: Array<string>
+} {
+  const commandArgs = [
+    'package',
+    'init',
+    '--chdir', store.getChdir(),
+  ];
+  return {
+    command: _swiftPath(),
+    args: commandArgs,
+  };
+}
+
+export function fetchPackageDependenciesCommand(store: SwiftPMBuildSystemStore): {
+  command: string;
+  args: Array<string>
+} {
+  const commandArgs = [
+    'package',
+    'fetch',
+    '--chdir', store.getChdir(),
+  ];
+  return {
+    command: _swiftPath(),
+    args: commandArgs,
+  };
+}
+
+export function updatePackageDependenciesCommand(store: SwiftPMBuildSystemStore): {
+  command: string;
+  args: Array<string>
+} {
+  const commandArgs = [
+    'package',
+    'update',
+    '--chdir', store.getChdir(),
+  ];
+  return {
+    command: _swiftPath(),
+    args: commandArgs,
+  };
+}
+
+export function generateXcodeProjectCommand(store: SwiftPMBuildSystemStore): {
+  command: string;
+  args: Array<string>
+} {
+  const commandArgs = [
+    'package',
+    'generate-xcodeproj',
+    '--chdir', store.getChdir(),
+  ];
+  return {
+    command: _swiftPath(),
+    args: commandArgs,
+  };
+}
+
+export function visualizePackageDependenciesCommand(store: SwiftPMBuildSystemStore): {
+  command: string;
+  args: Array<string>
+} {
+  const commandArgs = [
+    'package',
+    'show-dependencies',
+    '--chdir', store.getChdir(),
+  ];
+  return {
+    command: _swiftPath(),
+    args: commandArgs,
+  };
+}
+
+export function displayBufferDescriptionCommand(store: SwiftPMBuildSystemStore): {
+  command: string;
+  args: Array<string>
+} {
+  const commandArgs = [
+    'package',
+    'dump-package',
+    '--chdir', store.getChdir(),
+  ];
+  return {
+    command: _swiftPath(),
+    args: commandArgs,
+  };
+}
+
 function _swiftPath(): string {
   const path = (featureConfig.get('nuclide-swift.swiftToolchainPath'): any);
   if (path) {
