@@ -25,7 +25,7 @@ export default class SwiftPMBuildSystemStore {
   _Xlinker: string;
   _Xswiftc: string;
   _testBuildPath: string;
-  _compileCommands: Map<string, string>;
+  _compileCommands: Promise<Map<string, string>>;
 
   constructor(dispatcher: Dispatcher) {
     this._dispatcher = dispatcher;
@@ -67,15 +67,11 @@ export default class SwiftPMBuildSystemStore {
           this._testBuildPath = action.value;
           break;
         case SwiftPMBuildSystemActions.ActionType.UPDATE_COMPILE_COMMANDS:
-          readCompileCommands(llbuildYamlPath(
+          this._compileCommands = readCompileCommands(llbuildYamlPath(
             action.chdir,
             action.configuration,
-            action.buildPath,
-          )).then({
-            onFulfill: (commands) => {
-              this._compileCommands = commands;
-            },
-          });
+            action.buildPath
+          ));
           break;
       }
     });
@@ -125,7 +121,7 @@ export default class SwiftPMBuildSystemStore {
     return this._testBuildPath;
   }
 
-  getCompileCommands(): Map<string, string> {
+  getCompileCommands(): Promise<Map<string, string>> {
     return this._compileCommands;
   }
 }

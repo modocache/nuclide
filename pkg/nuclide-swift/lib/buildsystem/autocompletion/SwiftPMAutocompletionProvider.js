@@ -39,7 +39,8 @@ export default class SwiftPMAutocompletionProvider {
     const filePath = request.editor.getPath();
     let compilerArgs;
     if (filePath) {
-      compilerArgs = this._store.getCompileCommands().get(filePath)
+      const commands = await this._store.getCompileCommands();
+      compilerArgs = commands.get(filePath);
     }
 
     const sourceKittenPath = getSourceKittenPath();
