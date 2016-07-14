@@ -15,6 +15,7 @@ import {asyncExecute} from '../../../../commons-node/process';
 import fsPromise from '../../../../commons-node/fsPromise';
 import featureConfig from '../../../../nuclide-feature-config';
 import SwiftPMBuildSystemStore from '../SwiftPMBuildSystemStore';
+import {compilerArgsForFile} from '../LlbuildYamlParser';
 
 /**
  * An autocompletion provider that uses the compile commands in a built Swift
@@ -24,6 +25,7 @@ export default class SwiftPMAutocompletionProvider {
   _store: SwiftPMBuildSystemStore;
 
   constructor(store: SwiftPMBuildSystemStore) {
+    console.log(`SwiftPMAutocompletionProvider.constructor store: ${store.getConfiguration()}`);
     this._store = store;
   }
 
@@ -35,6 +37,15 @@ export default class SwiftPMAutocompletionProvider {
       prefix: string;
     },
   ): Promise<?Array<atom$AutocompleteSuggestion>> {
+    const filePath = request.editor.getPath();
+    let compilerArgs;
+    if (filePath) {
+      compilerArgs = await compilerArgsForFile(
+        filePath, this._store.getMostRecentlyGeneratedLlbuildYamlPath());
+    } else {
+      compilerArgs = '';
+    }
+
     const sourceKittenPath = _getSourceKittenPath();
     const {bufferPosition, editor, prefix} = request;
     const offset = editor.getBuffer().characterIndexForPosition(bufferPosition) - prefix.length;
@@ -43,25 +54,7 @@ export default class SwiftPMAutocompletionProvider {
       '--text', request.editor.getText(),
       '--offset', String(offset),
       '--compilerargs', '--',
-      // FIXME: These parameters are hardcoded, but they don't need to be.
-      //        Using `this.getLlbuildYaml()`, it should be possible to get the
-      //        path to this Swift package's {debug|release}.yaml, which looks
-      //        like this:
-      //
-      //        commands:
-      //          "<ModuleOne.module>":
-      //            # ...
-      //          "<ModuleTwo.module>":
-      //            sources: ["/path/to/file.swift","/path/to/another/file.swift"]
-      //            other-args: ["-Onone","-g","-enable-testing"]
-      //
-      //        These compiler arguments below are just the "other-args"
-      //        arguments with the "sources" paths appended to the end. The
-      //        tricky part is finding the current `editor.getPath()` in the
-      //        "sources" field, then plucking the corresponding "other-args"
-      //        out of the YAML. This could end up being expensive, but it's
-      //        certainly doable.
-      '-sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk -D SWIFT_PACKAGE -Onone -g -enable-testing -F /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks -target x86_64-apple-macosx10.10 -module-cache-path /Users/bgesiak/GitHub/tmp/MyCoolPackage/.build/debug/ModuleCache /Users/bgesiak/GitHub/tmp/MyCoolPackage/Sources/MyCoolPackage.swift /Users/bgesiak/GitHub/tmp/MyCoolPackage/Sources/AnotherSourceFile.swift',
+      compilerArgs,
     ];
     const result = await asyncExecute(sourceKittenPath, args);
     if (result.exitCode === null) {
@@ -88,41 +81,6 @@ export default class SwiftPMAutocompletionProvider {
     return JSON.parse(result.stdout)
       .filter((completion: SourceKittenCompletion) => completion.name.startsWith(prefix))
       .map(rawCompletionToSuggestion);
-  }
-
-  async getLlbuildYaml(): Promise<?string> {
-    if (this._store.getBuildPath().length > 0) {
-      const path = await this._getLlbuildYaml(
-        this._store.getBuildPath(), this._store.getConfiguration());
-      if (path) {
-        return path;
-      }
-    }
-
-    return await this._getLlbuildYaml(
-      this._store.getChdir(), this._store.getConfiguration());
-  }
-
-  async _getLlbuildYaml(
-    buildDirectoryPath: string,
-    configuration: string,
-  ): Promise<?string> {
-    let alternativeConfiguration;
-    if (configuration === 'debug') {
-      alternativeConfiguration = 'release';
-    } else {
-      alternativeConfiguration = 'debug';
-    }
-
-    const path = `${buildDirectoryPath}/${configuration}.yaml`;
-    if (await fsPromise.exists(path)) {
-      return path;
-    }
-
-    const alternativePath = `${buildDirectoryPath}/${alternativeConfiguration}.yaml`;
-    if (await fsPromise.exists(alternativePath)) {
-      return alternativePath;
-    }
   }
 }
 
