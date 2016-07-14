@@ -1,0 +1,5 @@
+{
+  "atom-workspace": {
+    "ctrl-cmd-p": "nuclide-swift:create-new-package"
+  }
+}
