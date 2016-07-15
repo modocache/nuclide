@@ -13,7 +13,7 @@ import {llbuildYamlPath, readCompileCommands} from '../../lib/buildsystem/Llbuil
 import nuclideUri from '../../../nuclide-remote-uri';
 
 describe('llbuildYamlPath', () => {
-  let chdir = '/path/to/chdir'
+  const chdir = '/path/to/chdir';
   let configuration: string;
   let buildPath: string;
 
@@ -25,7 +25,7 @@ describe('llbuildYamlPath', () => {
 
       it('returns "/path/to/chdir/.build/debug.yaml"', () => {
         expect(llbuildYamlPath(chdir, configuration, buildPath))
-          .toBe('/path/to/chdir/.build/debug.yaml')
+          .toBe('/path/to/chdir/.build/debug.yaml');
       });
     });
 
@@ -34,7 +34,7 @@ describe('llbuildYamlPath', () => {
 
       it('returns "/path/to/chdir/.build/release.yaml"', () => {
         expect(llbuildYamlPath(chdir, configuration, buildPath))
-          .toBe('/path/to/chdir/.build/release.yaml')
+          .toBe('/path/to/chdir/.build/release.yaml');
       });
     });
   });
@@ -47,7 +47,7 @@ describe('llbuildYamlPath', () => {
 
       it('returns "/build/path/debug.yaml"', () => {
         expect(llbuildYamlPath(chdir, configuration, buildPath))
-          .toBe('/build/path/debug.yaml')
+          .toBe('/build/path/debug.yaml');
       });
     });
 
@@ -56,7 +56,7 @@ describe('llbuildYamlPath', () => {
 
       it('returns "/build/path/release.yaml"', () => {
         expect(llbuildYamlPath(chdir, configuration, buildPath))
-          .toBe('/build/path/release.yaml')
+          .toBe('/build/path/release.yaml');
       });
     });
   });
@@ -123,7 +123,7 @@ describe('readCompileCommands', () => {
         expect(commands.get('/path/to/MyPackage/Tests/MyPackage/MyPackageTests.swift'))
           .toBe('-D SWIFT_PACKAGE -g /path/to/MyPackage/Tests/MyPackage/MyPackageTests.swift');
         expect(commands.get('/path/to/YetAnotherFile.swift'))
-          .toBe('/path/to/YetAnotherFile.swift')
+          .toBe('/path/to/YetAnotherFile.swift');
       });
     });
   });

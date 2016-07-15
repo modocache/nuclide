@@ -10,11 +10,11 @@
  */
 
 export type SwiftPMBuildSystemStoreState = {
-  chdir: string,
-  configuration: string,
-  buildPath: string,
-  Xcc: string,
-  Xlinker: string,
-  Xswiftc: string,
-  testBuildPath: string,
+  chdir: string;
+  configuration: string;
+  buildPath: string;
+  Xcc: string;
+  Xlinker: string;
+  Xswiftc: string;
+  testBuildPath: string;
 };
