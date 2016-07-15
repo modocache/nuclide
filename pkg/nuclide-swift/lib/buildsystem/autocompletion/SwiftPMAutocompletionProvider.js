@@ -12,7 +12,6 @@
 import type {SourceKittenCompletion} from './SourceKittenCompletion';
 
 import {asyncExecute} from '../../../../commons-node/process';
-import fsPromise from '../../../../commons-node/fsPromise';
 import SwiftPMBuildSystemStore from '../SwiftPMBuildSystemStore';
 import getSourceKittenPath from './SourceKitten';
 import sourceKittenCompletionToAtomSuggestion from './SourceKittenCompletion';
