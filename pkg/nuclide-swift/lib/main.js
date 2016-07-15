@@ -124,7 +124,7 @@ export function provideCodeFormat(): CodeFormatProvider {
 
 export function createTypeHintProvider(): TypeHintProvider {
   return {
-    selector: '.source.swift',
+    selector: 'source.swift',
     providerName: 'nuclide-swift',
     inclusionPriority: 1,
     typeHint(editor: TextEditor, position: atom$Point): Promise<?TypeHint> {
