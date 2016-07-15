@@ -14,6 +14,7 @@ import type {OutputService} from '../../nuclide-console/lib/types';
 import type {CwdApi} from '../../nuclide-current-working-directory/lib/CwdApi';
 import type {NuclideSideBarService} from '../../nuclide-side-bar';
 import type {SwiftPMBuildSystem as SwiftPMBuildSystemType} from './buildsystem/SwiftPMBuildSystem';
+import type {SwiftPMBuildSystemStoreState} from './buildsystem/SwiftPMBuildSystemStoreState';
 
 import invariant from 'assert';
 import {CompositeDisposable, Disposable} from 'atom';
@@ -25,11 +26,14 @@ import {SwiftPMBuildSystem} from './buildsystem/SwiftPMBuildSystem';
 // http://flight-manual.atom.io/hacking-atom/sections/package-word-count/.
 let _disposables: ?CompositeDisposable = null;
 let _buildSystem: ?SwiftPMBuildSystemType = null;
+let _initialState: ?Object = null;
 
 export function activate(rawState: ?Object): void {
   invariant(_disposables == null);
+  _initialState = rawState;
   _disposables = new CompositeDisposable(
-    new Disposable(),
+    new Disposable(() => { _buildSystem = null; }),
+    new Disposable(() => { _initialState = null; }),
     atom.commands.add('atom-workspace', {
       'nuclide-swift:create-new-package': () => _getBuildSystem().runTask('create-new-package'),
       'nuclide-swift:fetch-packages-dependencies': () => _getBuildSystem().runTask('fetch-package-dependencies'),
@@ -75,13 +79,10 @@ export function consumeNuclideSideBar(sideBar: NuclideSideBarService): Disposabl
   return new Disposable(() => {});
 }
 
-function _getBuildSystem(): SwiftPMBuildSystem {
-  if (_buildSystem == null) {
-    invariant(_disposables != null);
-    _buildSystem = new SwiftPMBuildSystem();
-    _disposables.add(_buildSystem);
+export function serialize(): ?SwiftPMBuildSystemStoreState {
+  if (_buildSystem != null) {
+    return _buildSystem.serialize();
   }
-  return _buildSystem;
 }
 
 export function createAutocompleteProvider(): atom$AutocompleteProvider {
@@ -95,4 +96,13 @@ export function createAutocompleteProvider(): atom$AutocompleteProvider {
       return _getBuildSystem().getAutocompletionProvider().getAutocompleteSuggestions(request);
     },
   };
+}
+
+function _getBuildSystem(): SwiftPMBuildSystem {
+  if (_buildSystem == null) {
+    invariant(_disposables != null);
+    _buildSystem = new SwiftPMBuildSystem(_initialState);
+    _disposables.add(_buildSystem);
+  }
+  return _buildSystem;
 }

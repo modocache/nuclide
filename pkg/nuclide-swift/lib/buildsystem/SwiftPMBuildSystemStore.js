@@ -9,6 +9,8 @@
  * the root directory of this source tree.
  */
 
+import type {SwiftPMBuildSystemStoreState} from './SwiftPMBuildSystemStoreState';
+
 import {Emitter} from 'atom';
 import {Dispatcher} from 'flux';
 import SwiftPMBuildSystemActions from './SwiftPMBuildSystemActions';
@@ -27,17 +29,29 @@ export default class SwiftPMBuildSystemStore {
   _testBuildPath: string;
   _compileCommands: Promise<Map<string, string>>;
 
-  constructor(dispatcher: Dispatcher) {
+  constructor(dispatcher: Dispatcher, initialState: ?SwiftPMBuildSystemStoreState) {
     this._dispatcher = dispatcher;
     this._emitter = new Emitter();
-    this._chdir = '';
-    this._configuration = 'debug';
-    this._buildPath = '';
+
+    if (initialState) {
+      this._chdir = initialState.chdir;
+      this._configuration = initialState.configuration;
+      this._buildPath = initialState.buildPath ? initialState.buildPath : '';
+      this._Xcc = initialState.Xcc ? initialState.Xcc : '';
+      this._Xlinker = initialState.Xlinker ? initialState.Xlinker : '';
+      this._Xswiftc = initialState.Xswiftc ? initialState.Xswiftc : '';
+      this._testBuildPath = initialState.testBuildPath ? initialState.testBuildPath : '';
+    } else {
+      this._chdir = '';
+      this._configuration = 'debug';
+      this._buildPath = '';
+      this._Xcc = '';
+      this._Xlinker = '';
+      this._Xswiftc = '';
+      this._testBuildPath = '';
+    }
+    // FIXME: Serialize these attributes.
     this._flag = 'xcc';
-    this._Xcc = '';
-    this._Xlinker = '';
-    this._Xswiftc = '';
-    this._testBuildPath = '';
     this._compileCommands = new Map();
 
     this._dispatcher.register(action => {
@@ -79,6 +93,18 @@ export default class SwiftPMBuildSystemStore {
 
   dispose() {
     this._emitter.dispose();
+  }
+
+  serialize(): SwiftPMBuildSystemStoreState {
+    return {
+      chdir: this.getChdir(),
+      configuration: this.getConfiguration(),
+      buildPath: this.getBuildPath(),
+      Xcc: this.getXcc(),
+      Xlinker: this.getXlinker(),
+      Xswiftc: this.getXswiftc(),
+      testBuildPath: this.getTestBuildPath(),
+    };
   }
 
   subscribe(callback: () => void): IDisposable {

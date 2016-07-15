@@ -11,6 +11,7 @@
 
 import type {Task, TaskInfo} from '../../../nuclide-build/lib/types';
 import type {Level, Message} from '../../../nuclide-console/lib/types';
+import type {SwiftPMBuildSystemStoreState} from './SwiftPMBuildSystemStoreState';
 
 import invariant from 'assert';
 import {Observable, Subject} from 'rxjs';
@@ -67,12 +68,12 @@ export class SwiftPMBuildSystem {
   _tasks: Observable<Array<Task>>;
   _outputMessages: Subject<Message>;
 
-  constructor() {
+  constructor(initialState: ?SwiftPMBuildSystemStoreState) {
     this.id = 'swiftpm';
     this.name = 'Swift';
 
     const dispatcher = new Dispatcher();
-    this._store = new SwiftPMBuildSystemStore(dispatcher);
+    this._store = new SwiftPMBuildSystemStore(dispatcher, initialState);
     this._actions = new SwiftPMBuildSystemActions(dispatcher);
     this._outputMessages = new Subject();
     this._autocompletionProvier = new SwiftPMAutocompletionProvider(this._store);
@@ -91,6 +92,10 @@ export class SwiftPMBuildSystem {
 
   dispose(): void {
     this._disposables.dispose();
+  }
+
+  serialize(): SwiftPMBuildSystemStoreState {
+    return this._store.serialize();
   }
 
   getExtraUi(): ReactClass<any> {
