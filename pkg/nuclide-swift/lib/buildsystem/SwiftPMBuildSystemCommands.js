@@ -28,10 +28,18 @@ export function buildCommand(
     '--chdir', chdir,
     '--configuration', configuration,
   ];
-  _pushIfNotEmpty(commandArgs, Xcc);
-  _pushIfNotEmpty(commandArgs, Xlinker);
-  _pushIfNotEmpty(commandArgs, Xswiftc);
-  _pushIfNotEmpty(commandArgs, buildPath);
+  if (Xcc.length > 0) {
+    commandArgs.push('-Xcc', Xcc);
+  }
+  if (Xlinker.length > 0) {
+    commandArgs.push('-Xlinker', Xlinker);
+  }
+  if (Xswiftc.length > 0) {
+    commandArgs.push('-Xswiftc', Xswiftc);
+  }
+  if (buildPath.length > 0) {
+    commandArgs.push('--build-path', buildPath);
+  }
   return {
     command: _swiftPath(),
     args: commandArgs,
@@ -49,7 +57,9 @@ export function testCommand(
     'test',
     '--chdir', chdir,
   ];
-  _pushIfNotEmpty(commandArgs, buildPath);
+  if (buildPath.length > 0) {
+    commandArgs.push('--build-path', buildPath);
+  }
   return {
     command: _swiftPath(),
     args: commandArgs,
@@ -157,10 +167,4 @@ function _swiftPath(): string {
   }
 
   return 'swift';
-}
-
-function _pushIfNotEmpty(array: Array<string>, element: string) {
-  if (element.length > 0) {
-    array.push(element);
-  }
 }
