@@ -9,7 +9,9 @@
  * the root directory of this source tree.
  */
 
+import {Range} from 'atom';
 import type {TypeHint} from '../../../../nuclide-type-hint/lib/types';
+import type {SourceKittenSyntax} from './SourceKittenSyntax';
 
 import {asyncExecute} from '../../../../commons-node/process';
 import featureConfig from '../../../../nuclide-feature-config';
@@ -25,16 +27,20 @@ export default class SwiftPMTypeHintProvider {
   }
 
   async typeHint(editor: TextEditor, position: atom$Point): Promise<?TypeHint> {
-    console.log('FIXME: Why is this console.log never printed...?');
-
     const enabled = featureConfig.get('nuclide-swift.enableTypeHints');
     if (!enabled) {
       return null;
     }
 
-    // FIXME: `sourcekitten syntax` doesn't take a --compilerArgs argument,
-    //        but it should. Add support for one, then pipe these compile
-    //        commands through to it.
+    const buffer = editor.getBuffer();
+    const cursorOffset = buffer.characterIndexForPosition(position);
+
+    // FIXME: `sourcekitten syntax` and `sourcekitten strcuture` don't take
+    //        --compilerArgs arguments, but they should. Add support for one,
+    //        then pipe these compile commands through to it. Use some sort of
+    //        error handling here, to handle the case in which a user is using
+    //        a version of SourceKitten that doesn't take a --compilerargs
+    //        argument.
     const filePath = editor.getPath();
     let compilerArgs;
     if (filePath) {
@@ -44,6 +50,7 @@ export default class SwiftPMTypeHintProvider {
 
     const sourceKittenPath = getSourceKittenPath();
     const args = [
+      // FIXME: This should use `sourcekitten structure` instead.
       'syntax',
       '--text', editor.getText(),
       // FIXME: `sourcekitten syntax` doesn't take a --compilerArgs argument,
@@ -53,9 +60,11 @@ export default class SwiftPMTypeHintProvider {
       // compilerArgs ? compilerArgs : '',
     ];
 
+    // FIXME: SourceKitten.js should provide a reusable function to launch
+    //        SourceKitten and grab its stdout. This code is duplicated in
+    //        SwiftPMAutocompletionProvider.
     const result = await asyncExecute(sourceKittenPath, args);
     if (result.exitCode === null) {
-      // FIXME: Display this error to the user via an error modal or something.
       const errorCode = result.errorCode ? result.errorCode : '';
       const errorMessage = result.errorMessage ? result.errorMessage : '';
       throw new Error(
@@ -68,9 +77,24 @@ export default class SwiftPMTypeHintProvider {
       // We probably parsed the llbuild YAML incorrectly, resulting in
       // bad parameters being passed to SourceKitten. Return an empty set of
       // autocompletion suggestions.
-      // FIXME: It would be great to track this error case somehow, perhaps by
-      //        sending up some anonymized logs.
       return null;
+    }
+
+    const syntaxes: Array<SourceKittenSyntax> = JSON.parse(result.stdout);
+    for (let i = 0; i < syntaxes.length; i++) {
+      const syntax = syntaxes[i];
+      const range = new Range(
+        buffer.positionForCharacterIndex(syntax.offset),
+        buffer.positionForCharacterIndex(syntax.offset + syntax.length),
+      );
+      if (range.containsPoint(position)) {
+        return {
+          range,
+          // FIXME: Use `sourcekitten structure` instead to display better
+          //        typehints.
+          hint: syntax.type,
+        }
+      }
     }
 
     return null;
