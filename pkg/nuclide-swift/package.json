@@ -56,6 +56,11 @@
       "versions": {
         "2.0.0": "createAutocompleteProvider"
       }
+    },
+    "nuclide-outline-view": {
+      "versions": {
+        "0.0.0": "getOutlineProvider"
+      }
     }
   },
   "activationCommands": {}
