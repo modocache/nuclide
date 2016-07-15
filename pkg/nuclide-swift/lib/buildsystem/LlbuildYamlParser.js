@@ -20,7 +20,7 @@ import fsPromise from '../../../commons-node/fsPromise';
  * empty mapping.
  */
 export async function readCompileCommands(
-  path: string
+  path: string,
 ): Promise<Map<string, string>> {
   // Read the YAML file into memory.
   let data;
@@ -56,7 +56,7 @@ export async function readCompileCommands(
       compileCommands.set(
         llbuildCommand.sources[i],
         otherArgs.concat(llbuildCommand.sources).join(' '),
-      )
+      );
     }
   }
 

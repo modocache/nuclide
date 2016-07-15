@@ -90,7 +90,7 @@ export default class SwiftPMBuildSystemActions {
   updateCompileCommands(
     chdir: string,
     configuration: string,
-    buildPath: string
+    buildPath: string,
   ): void {
     this._dispatcher.dispatch({
       actionType: SwiftPMBuildSystemActions.ActionType.UPDATE_COMPILE_COMMANDS,

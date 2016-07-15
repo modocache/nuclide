@@ -40,7 +40,7 @@ export function activate(rawState: ?Object): void {
       'nuclide-swift:update-package-dependencies': () => _getBuildSystem().runTask('update-package-dependencies'),
       'nuclide-swift:generate-xcode-project': () => _getBuildSystem().runTask('generate-xcode-project'),
       'nuclide-swift:visualize-package-dependencies': () => _getBuildSystem().runTask('visualize-package-dependencies'),
-      'nuclide-swift:display-buffer-description': () => _getBuildSystem().runTask('display-buffer-description')
+      'nuclide-swift:display-buffer-description': () => _getBuildSystem().runTask('display-buffer-description'),
     }),
   );
 }
@@ -91,7 +91,7 @@ export function createAutocompleteProvider(): atom$AutocompleteProvider {
     inclusionPriority: 1,
     disableForSelector: '.source.swift .comment',
     getSuggestions(
-      request: atom$AutocompleteRequest
+      request: atom$AutocompleteRequest,
     ): Promise<?Array<atom$AutocompleteSuggestion>> {
       return _getBuildSystem().getAutocompletionProvider().getAutocompleteSuggestions(request);
     },

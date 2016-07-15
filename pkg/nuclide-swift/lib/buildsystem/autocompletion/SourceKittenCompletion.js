@@ -59,7 +59,7 @@ export default function sourceKittenCompletionToAtomSuggestion(
  *        includes a snippet to tab to the body of the method.
  */
 export function sourceKittenSourcetextToAtomSnippet(
-  sourcetext: string
+  sourcetext: string,
 ): string {
   // Atom expects numbered snippet location, beginning with 1.
   let index = 1;
@@ -120,7 +120,7 @@ export function sourceKittenKindToAtomRightLabel(kind: string): string {
     case 'source.lang.swift.decl.generic_type_param':
       return 'Generic type parameter';
     case 'source.lang.swift.decl.typealias':
-      return "Typealias";
+      return 'Typealias';
     case 'source.lang.swift.decl.var.global':
       return 'Global variable';
     case 'source.lang.swift.decl.var.local':
