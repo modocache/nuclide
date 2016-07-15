@@ -56,6 +56,11 @@
       "versions": {
         "2.0.0": "createAutocompleteProvider"
       }
+    },
+    "nuclide-code-format.provider": {
+      "versions": {
+        "0.0.0": "provideCodeFormat"
+      }
     }
   },
   "activationCommands": {}
