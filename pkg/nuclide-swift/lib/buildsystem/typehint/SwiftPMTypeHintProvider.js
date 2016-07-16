@@ -18,6 +18,7 @@ import featureConfig from '../../../../nuclide-feature-config';
 import SwiftPMBuildSystemStore from '../SwiftPMBuildSystemStore';
 // FIXME: SourceKitten utilities should live outside of autocompletion.
 import getSourceKittenPath from '../autocompletion/SourceKitten';
+import {swiftDemangleUSR} from './SwiftDemangle';
 
 export default class SwiftPMTypeHintProvider {
   _store: SwiftPMBuildSystemStore;
@@ -32,15 +33,6 @@ export default class SwiftPMTypeHintProvider {
       return null;
     }
 
-    const buffer = editor.getBuffer();
-    const cursorOffset = buffer.characterIndexForPosition(position);
-
-    // FIXME: `sourcekitten syntax` and `sourcekitten strcuture` don't take
-    //        --compilerArgs arguments, but they should. Add support for one,
-    //        then pipe these compile commands through to it. Use some sort of
-    //        error handling here, to handle the case in which a user is using
-    //        a version of SourceKitten that doesn't take a --compilerargs
-    //        argument.
     const filePath = editor.getPath();
     let compilerArgs;
     if (filePath) {
@@ -50,14 +42,14 @@ export default class SwiftPMTypeHintProvider {
 
     const sourceKittenPath = getSourceKittenPath();
     const args = [
-      // FIXME: This should use `sourcekitten structure` instead.
-      'syntax',
-      '--text', editor.getText(),
-      // FIXME: `sourcekitten syntax` doesn't take a --compilerArgs argument,
-      //        but it should. Add support for one, then pipe these compile
-      //        commands through to it.
-      // '--compilerargs', '--',
-      // compilerArgs ? compilerArgs : '',
+      'index',
+      '--file', editor.getBuffer().getPath(),
+      // FIXME: https://github.com/jpsim/SourceKitten/pull/225 needs to be
+      //        merged for this to work. In the meantime, pull down the changes
+      //        in that pull request and build from source in order to display
+      //        typehints.
+      '--compilerargs', '--',
+      compilerArgs ? compilerArgs : '',
     ];
 
     // FIXME: SourceKitten.js should provide a reusable function to launch
@@ -80,20 +72,17 @@ export default class SwiftPMTypeHintProvider {
       return null;
     }
 
-    const syntaxes: Array<SourceKittenSyntax> = JSON.parse(result.stdout);
-    for (let i = 0; i < syntaxes.length; i++) {
-      const syntax = syntaxes[i];
+    // FIXME: This code needs to be cleaned up.
+    const index = JSON.parse(result.stdout);
+    for (let i = 0; i < index['key.entities'].length; i++) {
+      const entity = index['key.entities'][i];
       const range = new Range(
-        buffer.positionForCharacterIndex(syntax.offset),
-        buffer.positionForCharacterIndex(syntax.offset + syntax.length),
+        [entity['key.line'] - 1, entity['key.column']],
+        [entity['key.line'] - 1, entity['key.column'] + entity['key.name'].length],
       );
       if (range.containsPoint(position)) {
-        return {
-          range,
-          // FIXME: Use `sourcekitten structure` instead to display better
-          //        typehints.
-          hint: syntax.type,
-        }
+        const hint = await swiftDemangleUSR(entity['key.usr']);
+        return { range, hint };
       }
     }
 
