@@ -13,12 +13,14 @@ import type {BuildSystemRegistry} from '../../nuclide-build/lib/types';
 import type {OutputService} from '../../nuclide-console/lib/types';
 import type {CwdApi} from '../../nuclide-current-working-directory/lib/CwdApi';
 import type {NuclideSideBarService} from '../../nuclide-side-bar';
+import type {OutlineProvider} from '../../nuclide-outline-view';
 import type {SwiftPMBuildSystem as SwiftPMBuildSystemType} from './buildsystem/SwiftPMBuildSystem';
 import type {SwiftPMBuildSystemStoreState} from './buildsystem/SwiftPMBuildSystemStoreState';
 
 import invariant from 'assert';
 import {CompositeDisposable, Disposable} from 'atom';
 import {SwiftPMBuildSystem} from './buildsystem/SwiftPMBuildSystem';
+import {getOutline} from './buildsystem/SwiftOutlineProvider';
 
 // Another name for these would be `subscriptions`. This package subscribes to
 // one or more Atom events. These subscriptions are collected in this object
@@ -95,6 +97,15 @@ export function createAutocompleteProvider(): atom$AutocompleteProvider {
     ): Promise<?Array<atom$AutocompleteSuggestion>> {
       return _getBuildSystem().getAutocompletionProvider().getAutocompleteSuggestions(request);
     },
+  };
+}
+
+export function getOutlineProvider(): OutlineProvider {
+  return {
+    grammarScopes: ['source.swift'],
+    priority: 1,
+    name: 'Swift',
+    getOutline,
   };
 }
 
