@@ -15,6 +15,7 @@ import type {OutputService} from '../../nuclide-console/lib/types';
 import type {CwdApi} from '../../nuclide-current-working-directory/lib/CwdApi';
 import type {NuclideSideBarService} from '../../nuclide-side-bar';
 import type {OutlineProvider} from '../../nuclide-outline-view';
+import type {TypeHint, TypeHintProvider} from '../../nuclide-type-hint/lib/types';
 import type {SwiftPMBuildSystem as SwiftPMBuildSystemType} from './buildsystem/SwiftPMBuildSystem';
 import type {SwiftPMBuildSystemStoreState} from './buildsystem/SwiftPMBuildSystemStoreState';
 
@@ -118,6 +119,17 @@ export function provideCodeFormat(): CodeFormatProvider {
     formatEntireFile(editor, range) {
       return CodeFormatHelpers.formatEntireFile(editor, range);
     },
+  };
+}
+
+export function createTypeHintProvider(): TypeHintProvider {
+  return {
+    selector: 'source.swift',
+    providerName: 'nuclide-swift',
+    inclusionPriority: 1,
+    typeHint(editor: TextEditor, position: atom$Point): Promise<?TypeHint> {
+      return _getBuildSystem().getTypeHintProvider().typeHint(editor, position);
+    }
   };
 }
 

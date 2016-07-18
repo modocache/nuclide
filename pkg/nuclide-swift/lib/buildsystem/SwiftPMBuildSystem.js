@@ -41,6 +41,7 @@ import {
 } from './SwiftPMBuildSystemTasks';
 import SwiftPMBuildSystemToolbar from './toolbar/SwiftPMBuildSystemToolbar';
 import SwiftPMAutocompletionProvider from './autocompletion/SwiftPMAutocompletionProvider';
+import SwiftPMTypeHintProvider from './typehint/SwiftPMTypeHintProvider';
 import {addTestResultGutterIcon, highlightLine} from './gutter/TestResults.js';
 import {SwiftIcon} from '../ui/SwiftIcon';
 
@@ -64,6 +65,7 @@ export class SwiftPMBuildSystem {
   _disposables: CompositeDisposable;
   _store: SwiftPMBuildSystemStore;
   _autocompletionProvier: SwiftPMAutocompletionProvider;
+  _typeHintProvider: SwiftPMTypeHintProvider;
   _actions: SwiftPMBuildSystemActions;
   _tasks: Observable<Array<Task>>;
   _outputMessages: Subject<Message>;
@@ -77,6 +79,7 @@ export class SwiftPMBuildSystem {
     this._actions = new SwiftPMBuildSystemActions(dispatcher);
     this._outputMessages = new Subject();
     this._autocompletionProvier = new SwiftPMAutocompletionProvider(this._store);
+    this._typeHintProvider = new SwiftPMTypeHintProvider(this._store);
 
     this._disposables = new CompositeDisposable();
     this._disposables.add(this._store);
@@ -227,6 +230,10 @@ export class SwiftPMBuildSystem {
 
   getAutocompletionProvider(): SwiftPMAutocompletionProvider {
     return this._autocompletionProvier;
+  }
+
+  getTypeHintProvider(): SwiftPMTypeHintProvider {
+    return this._typeHintProvider;
   }
 
   _logOutput(text: string, level: Level) {
