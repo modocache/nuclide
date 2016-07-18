@@ -6,3 +6,10 @@
         ${3:statements}
       }
     """
+  'guard-else':
+    'prefix': 'guard'
+    'body': """
+      guard ${1:condition} else {
+        ${2:statements}
+      }
+    """
