@@ -10,7 +10,7 @@
  */
 
 import yaml from 'js-yaml';
-import {join} from 'path';
+import nuclideUri from '../../../nuclide-remote-uri';
 import fsPromise from '../../../commons-node/fsPromise';
 
 /**
@@ -84,8 +84,8 @@ export function llbuildYamlPath(
 ): string {
   const yamlFileName = `${configuration}.yaml`;
   if (buildPath.length > 0) {
-    return join(buildPath, yamlFileName);
+    return nuclideUri.join(buildPath, yamlFileName);
   } else {
-    return join(chdir, '.build', yamlFileName);
+    return nuclideUri.join(chdir, '.build', yamlFileName);
   }
 }
