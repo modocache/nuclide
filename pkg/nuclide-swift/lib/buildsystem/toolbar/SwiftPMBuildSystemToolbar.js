@@ -36,6 +36,7 @@ export default class SwiftPMBuildSystemToolbar extends React.Component {
         <div>
           <ChdirInput
             chdir={this.props.store.getChdir()}
+            defaultDir={this.props.defaultDir}
             disabled={false}
             onChdirChange={this._handleChdirChange}
           />
@@ -67,6 +68,7 @@ export default class SwiftPMBuildSystemToolbar extends React.Component {
         <div>
           <ChdirInput
             chdir={this.props.store.getChdir()}
+            defaultDir={this.props.defaultDir}
             disabled={false}
             onChdirChange={this._handleChdirChange}
           />

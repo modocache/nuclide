@@ -15,6 +15,7 @@ import {AtomInput} from '../../../../nuclide-ui/lib/AtomInput';
 export default class ChdirInput extends React.Component {
   static propTypes = {
     chdir: React.PropTypes.string.isRequired,
+    defaultDir: React.PropTypes.string.isRequired,
     disabled: React.PropTypes.bool.isRequired,
     onChdirChange: React.PropTypes.func.isRequired,
   };
@@ -40,7 +41,7 @@ export default class ChdirInput extends React.Component {
         disabled={this.props.disabled}
         initialValue={this.state.value}
         onDidChange={this._onDidChange}
-        placeholderText="Path to Swift package"
+        placeholderText={ this.props.defaultDir || "Path to Swift package" }
         width={150}
       />
     );
