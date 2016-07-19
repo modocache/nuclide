@@ -9,12 +9,11 @@
  * the root directory of this source tree.
  */
 
-import type {SourceKittenCompletion} from './SourceKittenCompletion';
+import type {SourceKittenCompletion} from '../../sourcekitten/Complete';
 
-import {asyncExecute} from '../../../../commons-node/process';
 import SwiftPMBuildSystemStore from '../SwiftPMBuildSystemStore';
-import getSourceKittenPath from './SourceKitten';
-import sourceKittenCompletionToAtomSuggestion from './SourceKittenCompletion';
+import {asyncExecuteSourceKitten} from '../../sourcekitten/SourceKitten';
+import sourceKittenCompletionToAtomSuggestion from '../../sourcekitten/Complete';
 
 /**
  * An autocompletion provider that uses the compile commands in a built Swift
@@ -42,39 +41,20 @@ export default class SwiftPMAutocompletionProvider {
       compilerArgs = commands.get(filePath);
     }
 
-    const sourceKittenPath = getSourceKittenPath();
     const {bufferPosition, editor, prefix} = request;
     const offset = editor.getBuffer().characterIndexForPosition(bufferPosition) - prefix.length;
-    const args = [
-      'complete',
+    const result = await asyncExecuteSourceKitten('complete', [
       '--text', request.editor.getText(),
       '--offset', String(offset),
       '--compilerargs', '--',
       compilerArgs ? compilerArgs : '',
-    ];
-    const result = await asyncExecute(sourceKittenPath, args);
-    if (result.exitCode === null) {
-      // FIXME: Display this error to the user via an error modal or something.
-      const errorCode = result.errorCode ? result.errorCode : '';
-      const errorMessage = result.errorMessage ? result.errorMessage : '';
-      throw new Error(
-        `Could not invoke SourceKitten at path '${sourceKittenPath}'. ` +
-        'Please double-check that the path you have set for the ' +
-        'nuclide-swift.sourceKittenPath config setting is correct. ' +
-        `Error code "${errorCode}", "${errorMessage}"`
-      );
-    } else if (result.exitCode !== 0 || result.stdout.length === 0) {
-      // We probably parsed the llbuild YAML incorrectly, resulting in
-      // bad parameters being passed to SourceKitten. Return an empty set of
-      // autocompletion suggestions.
-      // FIXME: It would be great to track this error case somehow, perhaps by
-      //        sending up some anonymized logs.
-      return new Promise((resolve, reject) => {
-        resolve(null);
-      });
+    ]);
+
+    if (!result) {
+      return [];
     }
 
-    return JSON.parse(result.stdout)
+    return JSON.parse(result)
       .filter((completion: SourceKittenCompletion) => completion.name.startsWith(prefix))
       .map(sourceKittenCompletionToAtomSuggestion);
   }

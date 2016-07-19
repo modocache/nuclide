@@ -9,7 +9,7 @@
  * the root directory of this source tree.
  */
 
-import {sourceKittenSourcetextToAtomSnippet} from '../../../lib/buildsystem/autocompletion/SourceKittenCompletion';
+import {sourceKittenSourcetextToAtomSnippet} from '../../lib/sourcekitten/Complete';
 
 describe('sourceKittenSourcetextToAtomSnippet', () => {
   let sourcetext: string;
