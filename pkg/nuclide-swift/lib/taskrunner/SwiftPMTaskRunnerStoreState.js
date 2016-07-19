@@ -9,12 +9,12 @@
  * the root directory of this source tree.
  */
 
-export type SwiftPMBuildSystemStoreState = {
-  chdir: string;
-  configuration: string;
-  buildPath: string;
-  Xcc: string;
-  Xlinker: string;
-  Xswiftc: string;
-  testBuildPath: string;
+export type SwiftPMTaskRunnerStoreState = {
+  chdir: string,
+  configuration: string,
+  buildPath: string,
+  Xcc: string,
+  Xlinker: string,
+  Xswiftc: string,
+  testBuildPath: string,
 };

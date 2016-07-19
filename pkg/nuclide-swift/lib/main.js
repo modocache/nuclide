@@ -9,20 +9,20 @@
  * the root directory of this source tree.
  */
 
-import type {BuildSystemRegistry} from '../../nuclide-build/lib/types';
+import type {TaskRunnerServiceApi} from '../../nuclide-task-runner/lib/types';
 import type {CodeFormatProvider} from '../../nuclide-code-format/lib/types';
 import type {OutputService} from '../../nuclide-console/lib/types';
 import type {CwdApi} from '../../nuclide-current-working-directory/lib/CwdApi';
 import type {NuclideSideBarService} from '../../nuclide-side-bar';
 import type {OutlineProvider} from '../../nuclide-outline-view';
 import type {TypeHint, TypeHintProvider} from '../../nuclide-type-hint/lib/types';
-import type {SwiftPMBuildSystem as SwiftPMBuildSystemType} from './buildsystem/SwiftPMBuildSystem';
-import type {SwiftPMBuildSystemStoreState} from './buildsystem/SwiftPMBuildSystemStoreState';
+import type {SwiftPMTaskRunner as SwiftPMTaskRunnerType} from './taskrunner/SwiftPMTaskRunner';
+import type {SwiftPMTaskRunnerStoreState} from './taskrunner/SwiftPMTaskRunnerStoreState';
 
 import invariant from 'assert';
 import {CompositeDisposable, Disposable} from 'atom';
-import {SwiftPMBuildSystem} from './buildsystem/SwiftPMBuildSystem';
-import {getOutline} from './buildsystem/SwiftOutlineProvider';
+import {SwiftPMTaskRunner} from './taskrunner/SwiftPMTaskRunner';
+import {getOutline} from './taskrunner/SwiftOutlineProvider';
 import CodeFormatHelpers from './CodeFormatHelpers';
 
 // Another name for these would be `subscriptions`. This package subscribes to
@@ -30,22 +30,28 @@ import CodeFormatHelpers from './CodeFormatHelpers';
 // and disposed of when this package is deactivated. For details, see:
 // http://flight-manual.atom.io/hacking-atom/sections/package-word-count/.
 let _disposables: ?CompositeDisposable = null;
-let _buildSystem: ?SwiftPMBuildSystemType = null;
+let _taskRunner: ?SwiftPMTaskRunnerType = null;
 let _initialState: ?Object = null;
 
 export function activate(rawState: ?Object): void {
   invariant(_disposables == null);
   _initialState = rawState;
   _disposables = new CompositeDisposable(
-    new Disposable(() => { _buildSystem = null; }),
+    new Disposable(() => { _taskRunner = null; }),
     new Disposable(() => { _initialState = null; }),
     atom.commands.add('atom-workspace', {
-      'nuclide-swift:create-new-package': () => _getBuildSystem().runTask('create-new-package'),
-      'nuclide-swift:fetch-packages-dependencies': () => _getBuildSystem().runTask('fetch-package-dependencies'),
-      'nuclide-swift:update-package-dependencies': () => _getBuildSystem().runTask('update-package-dependencies'),
-      'nuclide-swift:generate-xcode-project': () => _getBuildSystem().runTask('generate-xcode-project'),
-      'nuclide-swift:visualize-package-dependencies': () => _getBuildSystem().runTask('visualize-package-dependencies'),
-      'nuclide-swift:display-buffer-description': () => _getBuildSystem().runTask('display-buffer-description'),
+      'nuclide-swift:create-new-package': () =>
+        _getTaskRunner().runTask('create-new-package'),
+      'nuclide-swift:fetch-package-dependencies': () =>
+        _getTaskRunner().runTask('fetch-package-dependencies'),
+      'nuclide-swift:update-package-dependencies': () =>
+        _getTaskRunner().runTask('update-package-dependencies'),
+      'nuclide-swift:generate-xcode-project': () =>
+        _getTaskRunner().runTask('generate-xcode-project'),
+      'nuclide-swift:visualize-package-dependencies': () =>
+        _getTaskRunner().runTask('visualize-package-dependencies'),
+      'nuclide-swift:display-buffer-description': () =>
+        _getTaskRunner().runTask('display-buffer-description'),
     }),
   );
 }
@@ -56,16 +62,18 @@ export function deactivate(): void {
   _disposables = null;
 }
 
-export function consumeBuildSystemRegistry(registry: BuildSystemRegistry): void {
+export function consumeTaskRunnerServiceApi(
+  serviceApi: TaskRunnerServiceApi,
+): void {
   invariant(_disposables != null);
-  _disposables.add(registry.register(_getBuildSystem()));
+  _disposables.add(serviceApi.register(_getTaskRunner()));
 }
 
 export function consumeCurrentWorkingDirectory(service: CwdApi): void {
   invariant(_disposables != null);
   _disposables.add(service.observeCwd(cwd => {
     if (cwd != null) {
-      _getBuildSystem().updateCwd(cwd.getPath());
+      _getTaskRunner().updateCwd(cwd.getPath());
     }
   }));
 }
@@ -73,7 +81,7 @@ export function consumeCurrentWorkingDirectory(service: CwdApi): void {
 export function consumeOutputService(service: OutputService): void {
   invariant(_disposables != null);
   _disposables.add(service.registerOutputProvider({
-    messages: _getBuildSystem().getOutputMessages(),
+    messages: _getTaskRunner().getOutputMessages(),
     id: 'swift',
   }));
 }
@@ -84,9 +92,9 @@ export function consumeNuclideSideBar(sideBar: NuclideSideBarService): Disposabl
   return new Disposable(() => {});
 }
 
-export function serialize(): ?SwiftPMBuildSystemStoreState {
-  if (_buildSystem != null) {
-    return _buildSystem.serialize();
+export function serialize(): ?SwiftPMTaskRunnerStoreState {
+  if (_taskRunner != null) {
+    return _taskRunner.serialize();
   }
 }
 
@@ -98,7 +106,7 @@ export function createAutocompleteProvider(): atom$AutocompleteProvider {
     getSuggestions(
       request: atom$AutocompleteRequest,
     ): Promise<?Array<atom$AutocompleteSuggestion>> {
-      return _getBuildSystem().getAutocompletionProvider().getAutocompleteSuggestions(request);
+      return _getTaskRunner().getAutocompletionProvider().getAutocompleteSuggestions(request);
     },
   };
 }
@@ -128,16 +136,16 @@ export function createTypeHintProvider(): TypeHintProvider {
     providerName: 'nuclide-swift',
     inclusionPriority: 1,
     typeHint(editor: TextEditor, position: atom$Point): Promise<?TypeHint> {
-      return _getBuildSystem().getTypeHintProvider().typeHint(editor, position);
-    }
+      return _getTaskRunner().getTypeHintProvider().typeHint(editor, position);
+    },
   };
 }
 
-function _getBuildSystem(): SwiftPMBuildSystem {
-  if (_buildSystem == null) {
+function _getTaskRunner(): SwiftPMTaskRunner {
+  if (_taskRunner == null) {
     invariant(_disposables != null);
-    _buildSystem = new SwiftPMBuildSystem(_initialState);
-    _disposables.add(_buildSystem);
+    _taskRunner = new SwiftPMTaskRunner(_initialState);
+    _disposables.add(_taskRunner);
   }
-  return _buildSystem;
+  return _taskRunner;
 }

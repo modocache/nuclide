@@ -12,7 +12,7 @@
 import {keyMirror} from '../../../commons-node/collection';
 import {Dispatcher} from 'flux';
 
-export default class SwiftPMBuildSystemActions {
+export default class SwiftPMTaskRunnerActions {
   _dispatcher: Dispatcher;
 
   static ActionType = Object.freeze(keyMirror({
@@ -33,56 +33,56 @@ export default class SwiftPMBuildSystemActions {
 
   updateChdir(value: string): void {
     this._dispatcher.dispatch({
-      actionType: SwiftPMBuildSystemActions.ActionType.UPDATE_CHDIR,
+      actionType: SwiftPMTaskRunnerActions.ActionType.UPDATE_CHDIR,
       value,
     });
   }
 
   updateConfiguration(value: string): void {
     this._dispatcher.dispatch({
-      actionType: SwiftPMBuildSystemActions.ActionType.UPDATE_CONFIGURATION,
+      actionType: SwiftPMTaskRunnerActions.ActionType.UPDATE_CONFIGURATION,
       value,
     });
   }
 
   updateBuildPath(value: string): void {
     this._dispatcher.dispatch({
-      actionType: SwiftPMBuildSystemActions.ActionType.UPDATE_BUILD_PATH,
+      actionType: SwiftPMTaskRunnerActions.ActionType.UPDATE_BUILD_PATH,
       value,
     });
   }
 
   updateFlag(value: string): void {
     this._dispatcher.dispatch({
-      actionType: SwiftPMBuildSystemActions.ActionType.UPDATE_FLAG,
+      actionType: SwiftPMTaskRunnerActions.ActionType.UPDATE_FLAG,
       value,
     });
   }
 
   updateXcc(value: string): void {
     this._dispatcher.dispatch({
-      actionType: SwiftPMBuildSystemActions.ActionType.UPDATE_XCC,
+      actionType: SwiftPMTaskRunnerActions.ActionType.UPDATE_XCC,
       value,
     });
   }
 
   updateXlinker(value: string): void {
     this._dispatcher.dispatch({
-      actionType: SwiftPMBuildSystemActions.ActionType.UPDATE_XLINKER,
+      actionType: SwiftPMTaskRunnerActions.ActionType.UPDATE_XLINKER,
       value,
     });
   }
 
   updateXswiftc(value: string): void {
     this._dispatcher.dispatch({
-      actionType: SwiftPMBuildSystemActions.ActionType.UPDATE_XSWIFTC,
+      actionType: SwiftPMTaskRunnerActions.ActionType.UPDATE_XSWIFTC,
       value,
     });
   }
 
   updateTestBuildPath(value: string): void {
     this._dispatcher.dispatch({
-      actionType: SwiftPMBuildSystemActions.ActionType.UPDATE_TEST_BUILD_PATH,
+      actionType: SwiftPMTaskRunnerActions.ActionType.UPDATE_TEST_BUILD_PATH,
       value,
     });
   }
@@ -93,7 +93,7 @@ export default class SwiftPMBuildSystemActions {
     buildPath: string,
   ): void {
     this._dispatcher.dispatch({
-      actionType: SwiftPMBuildSystemActions.ActionType.UPDATE_COMPILE_COMMANDS,
+      actionType: SwiftPMTaskRunnerActions.ActionType.UPDATE_COMPILE_COMMANDS,
       chdir, configuration, buildPath,
     });
   }

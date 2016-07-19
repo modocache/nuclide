@@ -9,9 +9,9 @@
  * the root directory of this source tree.
  */
 
-import type {Task, TaskInfo} from '../../../nuclide-build/lib/types';
+import type {Task, TaskInfo} from '../../../nuclide-task-runner/lib/types';
 import type {Level, Message} from '../../../nuclide-console/lib/types';
-import type {SwiftPMBuildSystemStoreState} from './SwiftPMBuildSystemStoreState';
+import type {SwiftPMTaskRunnerStoreState} from './SwiftPMTaskRunnerStoreState';
 
 import invariant from 'assert';
 import {Observable, Subject} from 'rxjs';
@@ -21,9 +21,9 @@ import {React} from 'react-for-atom';
 import fsPromise from '../../../commons-node/fsPromise';
 import {DisposableSubscription} from '../../../commons-node/stream';
 import {observeProcess, safeSpawn} from '../../../commons-node/process';
-import {observableToBuildTaskInfo} from '../../../commons-node/observableToBuildTaskInfo';
-import SwiftPMBuildSystemStore from './SwiftPMBuildSystemStore';
-import SwiftPMBuildSystemActions from './SwiftPMBuildSystemActions';
+import {observableToTaskInfo} from '../../../commons-node/observableToTaskInfo';
+import SwiftPMTaskRunnerStore from './SwiftPMTaskRunnerStore';
+import SwiftPMTaskRunnerActions from './SwiftPMTaskRunnerActions';
 import {
   buildCommand,
   testCommand,
@@ -33,13 +33,13 @@ import {
   generateXcodeProjectCommand,
   visualizePackageDependenciesCommand,
   displayBufferDescriptionCommand,
-} from './SwiftPMBuildSystemCommands';
+} from './SwiftPMTaskRunnerCommands';
 import {
-  SwiftPMBuildSystemBuildTask,
-  SwiftPMBuildSystemTestTask,
-  SwiftPMBuildSystemTasks,
-} from './SwiftPMBuildSystemTasks';
-import SwiftPMBuildSystemToolbar from './toolbar/SwiftPMBuildSystemToolbar';
+  SwiftPMTaskRunnerBuildTask,
+  SwiftPMTaskRunnerTestTask,
+  SwiftPMTaskRunnerTasks,
+} from './SwiftPMTaskRunnerTasks';
+import SwiftPMTaskRunnerToolbar from './toolbar/SwiftPMTaskRunnerToolbar';
 import SwiftPMAutocompletionProvider from './autocompletion/SwiftPMAutocompletionProvider';
 import SwiftPMTypeHintProvider from './typehint/SwiftPMTypeHintProvider';
 import {addTestResultGutterIcon, highlightLine} from './gutter/TestResults.js';
@@ -49,34 +49,34 @@ import {SwiftIcon} from '../ui/SwiftIcon';
  * The primary controller for spawning SwiftPM tasks, such as building a
  * package, or running its tests.
  *
- * This class conforms to Nuclide's BuildSystem interface, and makes use of the
+ * This class conforms to Nuclide's TaskRunner interface, and makes use of the
  * Flux design pattern. This class is responsible for kicking off SwiftPM tasks
  * such as building a package. How it builds the package is determined by the
- * state of the SwiftPMBuildSystemToolbar -- the path to the package, whether a
+ * state of the SwiftPMTaskRunnerToolbar -- the path to the package, whether a
  * build path is specified, etc. -- and that state is maintained by the
- * SwiftPMBuildSystemStore. Updates to the toolbar UI options trigger actions,
- * defined in SwiftPMBuildSystemActions, which update the state of the store.
+ * SwiftPMTaskRunnerStore. Updates to the toolbar UI options trigger actions,
+ * defined in SwiftPMTaskRunnerActions, which update the state of the store.
  * Actions are routed to the store via a Flux.Dispatcher (instantiated by this
  * class).
  */
-export class SwiftPMBuildSystem {
+export class SwiftPMTaskRunner {
   id: string;
   name: string;
   _disposables: CompositeDisposable;
-  _store: SwiftPMBuildSystemStore;
+  _store: SwiftPMTaskRunnerStore;
   _autocompletionProvier: SwiftPMAutocompletionProvider;
   _typeHintProvider: SwiftPMTypeHintProvider;
-  _actions: SwiftPMBuildSystemActions;
+  _actions: SwiftPMTaskRunnerActions;
   _tasks: Observable<Array<Task>>;
   _outputMessages: Subject<Message>;
 
-  constructor(initialState: ?SwiftPMBuildSystemStoreState) {
+  constructor(initialState: ?SwiftPMTaskRunnerStoreState) {
     this.id = 'swiftpm';
     this.name = 'Swift';
 
     const dispatcher = new Dispatcher();
-    this._store = new SwiftPMBuildSystemStore(dispatcher, initialState);
-    this._actions = new SwiftPMBuildSystemActions(dispatcher);
+    this._store = new SwiftPMTaskRunnerStore(dispatcher, initialState);
+    this._actions = new SwiftPMTaskRunnerActions(dispatcher);
     this._outputMessages = new Subject();
     this._autocompletionProvier = new SwiftPMAutocompletionProvider(this._store);
     this._typeHintProvider = new SwiftPMTypeHintProvider(this._store);
@@ -97,7 +97,7 @@ export class SwiftPMBuildSystem {
     this._disposables.dispose();
   }
 
-  serialize(): SwiftPMBuildSystemStoreState {
+  serialize(): SwiftPMTaskRunnerStoreState {
     return this._store.serialize();
   }
 
@@ -106,12 +106,12 @@ export class SwiftPMBuildSystem {
     const actions = this._actions;
     return class ExtraUi extends React.Component {
       props: {
-        activeTaskType: ?string;
+        activeTaskType: ?string,
       };
 
       render(): React.Element<any> {
         return (
-          <SwiftPMBuildSystemToolbar
+          <SwiftPMTaskRunnerToolbar
             store={store}
             actions={actions}
             activeTaskType={this.props.activeTaskType}
@@ -123,10 +123,10 @@ export class SwiftPMBuildSystem {
 
   observeTasks(cb: (tasks: Array<Task>) => mixed): IDisposable {
     if (this._tasks == null) {
-      this._tasks = Observable.of(SwiftPMBuildSystemTasks);
+      this._tasks = Observable.of(SwiftPMTaskRunnerTasks);
     }
     return new DisposableSubscription(
-      this._tasks.subscribe({next: cb})
+      this._tasks.subscribe({next: cb}),
     );
   }
 
@@ -141,7 +141,7 @@ export class SwiftPMBuildSystem {
 
     let command;
     switch (taskType) {
-      case SwiftPMBuildSystemBuildTask.type:
+      case SwiftPMTaskRunnerBuildTask.type:
         command = buildCommand(
           chdir,
           configuration,
@@ -151,7 +151,7 @@ export class SwiftPMBuildSystem {
           buildPath,
         );
         break;
-      case SwiftPMBuildSystemTestTask.type:
+      case SwiftPMTaskRunnerTestTask.type:
         command = testCommand(chdir, buildPath);
         break;
       case 'create-new-package':
@@ -177,7 +177,7 @@ export class SwiftPMBuildSystem {
     this._logOutput(`${command.command} ${command.args.join(' ')}`, 'log');
 
     const observable = observeProcess(
-      () => safeSpawn(command.command, command.args)
+      () => safeSpawn(command.command, command.args),
     ).do(message => {
       switch (message.kind) {
         case 'stderr':
@@ -190,7 +190,7 @@ export class SwiftPMBuildSystem {
           break;
         case 'exit':
           this._logOutput(`Exited with exit code ${message.exitCode}`, 'log');
-          if (message.exitCode === 0 && taskType === SwiftPMBuildSystemBuildTask.type) {
+          if (message.exitCode === 0 && taskType === SwiftPMTaskRunnerBuildTask.type) {
             this._actions.updateCompileCommands(
               chdir,
               configuration,
@@ -204,7 +204,7 @@ export class SwiftPMBuildSystem {
       return message;
     });
 
-    const taskInfo = observableToBuildTaskInfo(observable);
+    const taskInfo = observableToTaskInfo(observable);
     invariant(taskInfo.observeProgress != null);
     return {
       observeProgress: taskInfo.observeProgress,

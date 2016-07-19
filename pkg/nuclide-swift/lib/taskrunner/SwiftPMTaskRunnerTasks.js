@@ -9,9 +9,9 @@
  * the root directory of this source tree.
  */
 
-import type {Task} from '../../../nuclide-build/lib/types';
+import type {Task} from '../../../nuclide-task-runner/lib/types';
 
-export const SwiftPMBuildSystemBuildTask: Task = {
+export const SwiftPMTaskRunnerBuildTask: Task = {
   type: 'build',
   label: 'Build',
   description: 'Build a Swift package',
@@ -19,7 +19,7 @@ export const SwiftPMBuildSystemBuildTask: Task = {
   icon: 'tools',
 };
 
-export const SwiftPMBuildSystemTestTask: Task = {
+export const SwiftPMTaskRunnerTestTask: Task = {
   type: 'test',
   label: 'Test',
   description: 'Run a Swift package\'s tests',
@@ -27,7 +27,7 @@ export const SwiftPMBuildSystemTestTask: Task = {
   icon: 'checklist',
 };
 
-export const SwiftPMBuildSystemTasks: Array<Task> = [
-  SwiftPMBuildSystemBuildTask,
-  SwiftPMBuildSystemTestTask,
+export const SwiftPMTaskRunnerTasks: Array<Task> = [
+  SwiftPMTaskRunnerBuildTask,
+  SwiftPMTaskRunnerTestTask,
 ];

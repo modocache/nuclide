@@ -17,5 +17,5 @@ nuclide-swift makes use of several Nuclide services:
 - `nuclide-side-bar`: Used to display a list of tests defined in the Swift
   package in the side bar.
 
-The `lib/buildsystem` directory implements the toolbar integration. It also
+The `lib/taskrunner` directory implements the toolbar integration. It also
 parses test output in order display test successes and failures inline.

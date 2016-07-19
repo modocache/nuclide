@@ -20,7 +20,7 @@ export default class TestBuildPathInput extends React.Component {
   };
 
   state: {
-    value: string;
+    value: string,
   };
 
   constructor(props: Object) {

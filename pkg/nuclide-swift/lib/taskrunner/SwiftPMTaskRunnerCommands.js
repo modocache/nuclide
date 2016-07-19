@@ -10,7 +10,7 @@
  */
 
 import featureConfig from '../../../nuclide-feature-config';
-import SwiftPMBuildSystemStore from './SwiftPMBuildSystemStore';
+import SwiftPMTaskRunnerStore from './SwiftPMTaskRunnerStore';
 
 export function buildCommand(
   chdir: string,
@@ -20,8 +20,8 @@ export function buildCommand(
   Xswiftc: string,
   buildPath: string,
 ): {
-  command: string;
-  args: Array<string>
+  command: string,
+  args: Array<string>,
 } {
   const commandArgs = [
     'build',
@@ -50,8 +50,8 @@ export function testCommand(
   chdir: string,
   buildPath: string,
 ): {
-  command: string;
-  args: Array<string>
+  command: string,
+  args: Array<string>,
 } {
   const commandArgs = [
     'test',
@@ -66,9 +66,9 @@ export function testCommand(
   };
 }
 
-export function createNewPackageCommand(store: SwiftPMBuildSystemStore): {
-  command: string;
-  args: Array<string>
+export function createNewPackageCommand(store: SwiftPMTaskRunnerStore): {
+  command: string,
+  args: Array<string>,
 } {
   const commandArgs = [
     'package',
@@ -81,9 +81,9 @@ export function createNewPackageCommand(store: SwiftPMBuildSystemStore): {
   };
 }
 
-export function fetchPackageDependenciesCommand(store: SwiftPMBuildSystemStore): {
-  command: string;
-  args: Array<string>
+export function fetchPackageDependenciesCommand(store: SwiftPMTaskRunnerStore): {
+  command: string,
+  args: Array<string>,
 } {
   const commandArgs = [
     'package',
@@ -96,9 +96,9 @@ export function fetchPackageDependenciesCommand(store: SwiftPMBuildSystemStore):
   };
 }
 
-export function updatePackageDependenciesCommand(store: SwiftPMBuildSystemStore): {
-  command: string;
-  args: Array<string>
+export function updatePackageDependenciesCommand(store: SwiftPMTaskRunnerStore): {
+  command: string,
+  args: Array<string>,
 } {
   const commandArgs = [
     'package',
@@ -111,9 +111,9 @@ export function updatePackageDependenciesCommand(store: SwiftPMBuildSystemStore)
   };
 }
 
-export function generateXcodeProjectCommand(store: SwiftPMBuildSystemStore): {
-  command: string;
-  args: Array<string>
+export function generateXcodeProjectCommand(store: SwiftPMTaskRunnerStore): {
+  command: string,
+  args: Array<string>,
 } {
   const commandArgs = [
     'package',
@@ -126,9 +126,9 @@ export function generateXcodeProjectCommand(store: SwiftPMBuildSystemStore): {
   };
 }
 
-export function visualizePackageDependenciesCommand(store: SwiftPMBuildSystemStore): {
-  command: string;
-  args: Array<string>
+export function visualizePackageDependenciesCommand(store: SwiftPMTaskRunnerStore): {
+  command: string,
+  args: Array<string>,
 } {
   const commandArgs = [
     'package',
@@ -141,9 +141,9 @@ export function visualizePackageDependenciesCommand(store: SwiftPMBuildSystemSto
   };
 }
 
-export function displayBufferDescriptionCommand(store: SwiftPMBuildSystemStore): {
-  command: string;
-  args: Array<string>
+export function displayBufferDescriptionCommand(store: SwiftPMTaskRunnerStore): {
+  command: string,
+  args: Array<string>,
 } {
   const commandArgs = [
     'package',

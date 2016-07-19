@@ -11,7 +11,7 @@
 
 import type {SourceKittenCompletion} from '../../sourcekitten/Complete';
 
-import SwiftPMBuildSystemStore from '../SwiftPMBuildSystemStore';
+import SwiftPMTaskRunnerStore from '../SwiftPMTaskRunnerStore';
 import {asyncExecuteSourceKitten} from '../../sourcekitten/SourceKitten';
 import sourceKittenCompletionToAtomSuggestion from '../../sourcekitten/Complete';
 
@@ -20,18 +20,18 @@ import sourceKittenCompletionToAtomSuggestion from '../../sourcekitten/Complete'
  * package's debug.yaml or release.yaml.
  */
 export default class SwiftPMAutocompletionProvider {
-  _store: SwiftPMBuildSystemStore;
+  _store: SwiftPMTaskRunnerStore;
 
-  constructor(store: SwiftPMBuildSystemStore) {
+  constructor(store: SwiftPMTaskRunnerStore) {
     this._store = store;
   }
 
   async getAutocompleteSuggestions(
     request: {
-      editor: atom$TextEditor;
-      bufferPosition: atom$Point;
-      scopeDescriptor: any;
-      prefix: string;
+      editor: atom$TextEditor,
+      bufferPosition: atom$Point,
+      scopeDescriptor: any,
+      prefix: string,
     },
   ): Promise<?Array<atom$AutocompleteSuggestion>> {
     const filePath = request.editor.getPath();

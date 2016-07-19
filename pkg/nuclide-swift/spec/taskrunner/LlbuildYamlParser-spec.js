@@ -9,7 +9,7 @@
  * the root directory of this source tree.
  */
 
-import {llbuildYamlPath, readCompileCommands} from '../../lib/buildsystem/LlbuildYamlParser';
+import {llbuildYamlPath, readCompileCommands} from '../../lib/taskrunner/LlbuildYamlParser';
 import nuclideUri from '../../../nuclide-remote-uri';
 
 describe('llbuildYamlPath', () => {
@@ -99,7 +99,9 @@ describe('readCompileCommands', () => {
   });
 
   describe('when the YAML in the file does not contain any "commands.sources" keys', () => {
-    beforeEach(() => { path = nuclideUri.join(__dirname, '../fixtures/no-commands-sources.yaml'); });
+    beforeEach(() => {
+      path = nuclideUri.join(__dirname, '../fixtures/no-commands-sources.yaml');
+    });
 
     it('returns an empty mapping', () => {
       waitsForPromise(async () => {
@@ -117,11 +119,22 @@ describe('readCompileCommands', () => {
         const commands = await readCompileCommands(path);
         expect(commands.size).toBe(4);
         expect(commands.get('/path/to/MyPackage/Sources/MyPackage.swift'))
-          .toBe('-D SWIFT_PACKAGE -g /path/to/MyPackage/Sources/AnotherSource.swift /path/to/MyPackage/Sources/MyPackage.swift');
+          .toBe([
+            '-D', 'SWIFT_PACKAGE', '-g',
+            '/path/to/MyPackage/Sources/AnotherSource.swift',
+            '/path/to/MyPackage/Sources/MyPackage.swift',
+          ].join(' '));
         expect(commands.get('/path/to/MyPackage/Sources/AnotherSource.swift'))
-          .toBe('-D SWIFT_PACKAGE -g /path/to/MyPackage/Sources/AnotherSource.swift /path/to/MyPackage/Sources/MyPackage.swift');
+          .toBe([
+            '-D', 'SWIFT_PACKAGE', '-g',
+            '/path/to/MyPackage/Sources/AnotherSource.swift',
+            '/path/to/MyPackage/Sources/MyPackage.swift',
+          ].join(' '));
         expect(commands.get('/path/to/MyPackage/Tests/MyPackage/MyPackageTests.swift'))
-          .toBe('-D SWIFT_PACKAGE -g /path/to/MyPackage/Tests/MyPackage/MyPackageTests.swift');
+          .toBe([
+            '-D', 'SWIFT_PACKAGE', '-g',
+            '/path/to/MyPackage/Tests/MyPackage/MyPackageTests.swift',
+          ].join(' '));
         expect(commands.get('/path/to/YetAnotherFile.swift'))
           .toBe('/path/to/YetAnotherFile.swift');
       });

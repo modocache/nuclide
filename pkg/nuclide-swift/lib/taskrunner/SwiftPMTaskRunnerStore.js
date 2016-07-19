@@ -9,14 +9,14 @@
  * the root directory of this source tree.
  */
 
-import type {SwiftPMBuildSystemStoreState} from './SwiftPMBuildSystemStoreState';
+import type {SwiftPMTaskRunnerStoreState} from './SwiftPMTaskRunnerStoreState';
 
 import {Emitter} from 'atom';
 import {Dispatcher} from 'flux';
-import SwiftPMBuildSystemActions from './SwiftPMBuildSystemActions';
+import SwiftPMTaskRunnerActions from './SwiftPMTaskRunnerActions';
 import {llbuildYamlPath, readCompileCommands} from './LlbuildYamlParser';
 
-export default class SwiftPMBuildSystemStore {
+export default class SwiftPMTaskRunnerStore {
   _dispatcher: Dispatcher;
   _emitter: Emitter;
   _chdir: string;
@@ -29,7 +29,7 @@ export default class SwiftPMBuildSystemStore {
   _testBuildPath: string;
   _compileCommands: Promise<Map<string, string>>;
 
-  constructor(dispatcher: Dispatcher, initialState: ?SwiftPMBuildSystemStoreState) {
+  constructor(dispatcher: Dispatcher, initialState: ?SwiftPMTaskRunnerStoreState) {
     this._dispatcher = dispatcher;
     this._emitter = new Emitter();
 
@@ -56,35 +56,35 @@ export default class SwiftPMBuildSystemStore {
 
     this._dispatcher.register(action => {
       switch (action.actionType) {
-        case SwiftPMBuildSystemActions.ActionType.UPDATE_CHDIR:
+        case SwiftPMTaskRunnerActions.ActionType.UPDATE_CHDIR:
           this._chdir = action.value;
           break;
-        case SwiftPMBuildSystemActions.ActionType.UPDATE_CONFIGURATION:
+        case SwiftPMTaskRunnerActions.ActionType.UPDATE_CONFIGURATION:
           this._configuration = action.value;
           break;
-        case SwiftPMBuildSystemActions.ActionType.UPDATE_BUILD_PATH:
+        case SwiftPMTaskRunnerActions.ActionType.UPDATE_BUILD_PATH:
           this._buildPath = action.value;
           break;
-        case SwiftPMBuildSystemActions.ActionType.UPDATE_FLAG:
+        case SwiftPMTaskRunnerActions.ActionType.UPDATE_FLAG:
           this._flag = action.value;
           break;
-        case SwiftPMBuildSystemActions.ActionType.UPDATE_XCC:
+        case SwiftPMTaskRunnerActions.ActionType.UPDATE_XCC:
           this._Xcc = action.value;
           break;
-        case SwiftPMBuildSystemActions.ActionType.UPDATE_XLINKER:
+        case SwiftPMTaskRunnerActions.ActionType.UPDATE_XLINKER:
           this._Xlinker = action.value;
           break;
-        case SwiftPMBuildSystemActions.ActionType.UPDATE_XSWIFTC:
+        case SwiftPMTaskRunnerActions.ActionType.UPDATE_XSWIFTC:
           this._Xswiftc = action.value;
           break;
-        case SwiftPMBuildSystemActions.ActionType.UPDATE_TEST_BUILD_PATH:
+        case SwiftPMTaskRunnerActions.ActionType.UPDATE_TEST_BUILD_PATH:
           this._testBuildPath = action.value;
           break;
-        case SwiftPMBuildSystemActions.ActionType.UPDATE_COMPILE_COMMANDS:
+        case SwiftPMTaskRunnerActions.ActionType.UPDATE_COMPILE_COMMANDS:
           this._compileCommands = readCompileCommands(llbuildYamlPath(
             action.chdir,
             action.configuration,
-            action.buildPath
+            action.buildPath,
           ));
           break;
       }
@@ -95,7 +95,7 @@ export default class SwiftPMBuildSystemStore {
     this._emitter.dispose();
   }
 
-  serialize(): SwiftPMBuildSystemStoreState {
+  serialize(): SwiftPMTaskRunnerStoreState {
     return {
       chdir: this.getChdir(),
       configuration: this.getConfiguration(),

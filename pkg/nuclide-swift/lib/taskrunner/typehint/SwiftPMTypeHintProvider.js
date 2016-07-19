@@ -14,13 +14,13 @@ import type {TypeHint} from '../../../../nuclide-type-hint/lib/types';
 
 import featureConfig from '../../../../nuclide-feature-config';
 import {asyncExecuteSourceKitten} from '../../sourcekitten/SourceKitten';
-import SwiftPMBuildSystemStore from '../SwiftPMBuildSystemStore';
+import SwiftPMTaskRunnerStore from '../SwiftPMTaskRunnerStore';
 import {swiftDemangleUSR} from './SwiftDemangle';
 
 export default class SwiftPMTypeHintProvider {
-  _store: SwiftPMBuildSystemStore;
+  _store: SwiftPMTaskRunnerStore;
 
-  constructor(store: SwiftPMBuildSystemStore) {
+  constructor(store: SwiftPMTaskRunnerStore) {
     this._store = store;
   }
 

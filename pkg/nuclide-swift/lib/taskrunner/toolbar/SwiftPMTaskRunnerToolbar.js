@@ -15,9 +15,9 @@ import ConfigurationDropdown from './ConfigurationDropdown';
 import FlagsDropdownInput from './FlagsDropdownInput';
 import BuildPathInput from './BuildPathInput';
 import TestBuildPathInput from './TestBuildPathInput';
-import {SwiftPMBuildSystemBuildTask, SwiftPMBuildSystemTestTask} from '../SwiftPMBuildSystemTasks';
+import {SwiftPMTaskRunnerBuildTask, SwiftPMTaskRunnerTestTask} from '../SwiftPMTaskRunnerTasks';
 
-export default class SwiftPMBuildSystemToolbar extends React.Component {
+export default class SwiftPMTaskRunnerToolbar extends React.Component {
   constructor(props: mixed) {
     super(props);
     (this: any)._handleChdirChange = this._handleChdirChange.bind(this);
@@ -31,7 +31,7 @@ export default class SwiftPMBuildSystemToolbar extends React.Component {
   }
 
   render(): React.Element<any> {
-    if (this.props.activeTaskType === SwiftPMBuildSystemBuildTask.type) {
+    if (this.props.activeTaskType === SwiftPMTaskRunnerBuildTask.type) {
       return (
         <div>
           <ChdirInput
