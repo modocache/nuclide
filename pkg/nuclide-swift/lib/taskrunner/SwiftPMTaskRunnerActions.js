@@ -56,4 +56,15 @@ export default class SwiftPMTaskRunnerActions {
       buildPath,
     });
   }
+
+  updateCompileCommands(
+    chdir: string,
+    configuration: string,
+    buildPath: string,
+  ): void {
+    this._dispatcher.dispatch({
+      actionType: SwiftPMTaskRunnerActions.ActionType.UPDATE_COMPILE_COMMANDS,
+      chdir, configuration, buildPath,
+    });
+  }
 }

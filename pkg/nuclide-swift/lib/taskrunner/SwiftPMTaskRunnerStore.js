@@ -14,6 +14,7 @@ import type {SwiftPMTaskRunnerStoreState} from './SwiftPMTaskRunnerStoreState';
 import {Emitter} from 'atom';
 import {Dispatcher} from 'flux';
 import SwiftPMTaskRunnerActions from './SwiftPMTaskRunnerActions';
+import {llbuildYamlPath, readCompileCommands} from './LlbuildYamlParser';
 
 export default class SwiftPMTaskRunnerStore {
   _dispatcher: Dispatcher;
@@ -49,6 +50,8 @@ export default class SwiftPMTaskRunnerStore {
       this._Xswiftc = '';
       this._testBuildPath = '';
     }
+    // FIXME: Serialize these attributes.
+    this._compileCommands = new Map();
 
     this._dispatcher.register(action => {
       switch (action.actionType) {
@@ -64,6 +67,13 @@ export default class SwiftPMTaskRunnerStore {
           break;
         case SwiftPMTaskRunnerActions.ActionType.UPDATE_TEST_SETTINGS:
           this._testBuildPath = action.buildPath;
+          break;
+        case SwiftPMTaskRunnerActions.ActionType.UPDATE_COMPILE_COMMANDS:
+          this._compileCommands = readCompileCommands(llbuildYamlPath(
+            action.chdir,
+            action.configuration,
+            action.buildPath,
+          ));
           break;
       }
     });
@@ -123,5 +133,9 @@ export default class SwiftPMTaskRunnerStore {
 
   getTestBuildPath(): string {
     return this._testBuildPath;
+  }
+
+  getCompileCommands(): Promise<Map<string, string>> {
+    return this._compileCommands;
   }
 }
