@@ -15,6 +15,12 @@
       ]
     },
     "config": {
+      "enableTypeHints": {
+        "title": "Enable Type Hints",
+        "type": "boolean",
+        "default": true,
+        "description": "Display tooltips with Swift types"
+      },
       "swiftToolchainPath": {
         "title": "Swift Toolchain Path",
         "type": "string",
@@ -45,6 +51,11 @@
     "autocomplete.provider": {
       "versions": {
         "2.0.0": "createAutocompleteProvider"
+      }
+    },
+    "nuclide-type-hint.provider": {
+      "versions": {
+        "0.0.0": "createTypeHintProvider"
       }
     }
   },

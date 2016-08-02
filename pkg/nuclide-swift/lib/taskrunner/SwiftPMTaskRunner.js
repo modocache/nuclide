@@ -63,6 +63,7 @@ export class SwiftPMTaskRunner {
   _flux: ?SwiftPMTaskRunnerFlux;
   _taskList: Observable<Array<TaskMetadata>>;
   _autocompletionProvider: ?SwiftPMAutocompletionProvider;
+  _typeHintProvider: ?SwiftPMTypeHintProvider;
   _outputMessages: Subject<Message>;
 
   constructor(initialState: ?SwiftPMTaskRunnerStoreState) {
@@ -184,6 +185,13 @@ export class SwiftPMTaskRunner {
       this._autocompletionProvider = new SwiftPMAutocompletionProvider(this._getFlux().store);
     }
     return this._autocompletionProvider;
+  }
+
+  getTypeHintProvider(): SwiftPMTypeHintProvider {
+    if (!this._typeHintProvider) {
+      this._typeHintProvider = new SwiftPMTypeHintProvider(this._getFlux().store);
+    }
+    return this._typeHintProvider;
   }
 
   getOutputMessages(): Observable<Message> {

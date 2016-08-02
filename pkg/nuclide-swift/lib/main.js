@@ -11,6 +11,7 @@
 
 import type {OutputService} from '../../nuclide-console/lib/types';
 import type {TaskRunnerServiceApi} from '../../nuclide-task-runner/lib/types';
+import type {TypeHint, TypeHintProvider} from '../../nuclide-type-hint/lib/types';
 import type {SwiftPMTaskRunner as SwiftPMTaskRunnerType} from './taskrunner/SwiftPMTaskRunner';
 import type {SwiftPMTaskRunnerStoreState} from './taskrunner/SwiftPMTaskRunnerStoreState';
 
@@ -67,6 +68,17 @@ export function createAutocompleteProvider(): atom$AutocompleteProvider {
       request: atom$AutocompleteRequest,
     ): Promise<?Array<atom$AutocompleteSuggestion>> {
       return _getTaskRunner().getAutocompletionProvider().getAutocompleteSuggestions(request);
+    },
+  };
+}
+
+export function createTypeHintProvider(): TypeHintProvider {
+  return {
+    selector: 'source.swift',
+    providerName: 'nuclide-swift',
+    inclusionPriority: 1,
+    typeHint(editor: TextEditor, position: atom$Point): Promise<?TypeHint> {
+      return _getTaskRunner().getTypeHintProvider().typeHint(editor, position);
     },
   };
 }
